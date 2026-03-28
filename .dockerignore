@@ -1,31 +1,31 @@
-# Ignore git
+# Git
 .git
 .gitignore
 
-# Ignore build artifacts
+# Build artifacts
 _build
 deps
-.elixir_ls
-
-# Ignore node modules (if any)
 node_modules
 
-# Ignore test files
-test
-
-# Ignore editor files
+# Dev/test files
+.elixir_ls
 .vscode
-.idea
+tmp
+test
+docs
+stitch
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# IDE
 *.swp
 *.swo
+*~
+.idea
 
-# Ignore Docker files
-docker-compose*
-Dockerfile*
-
-# Ignore CI
-.github
-
-# Ignore design files
-*.html
-stitch/
+# Secrets
+.env
+*.pem

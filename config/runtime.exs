@@ -57,6 +57,24 @@ if config_env() == :prod do
     openai_api_key: System.get_env("OPENAI_API_KEY"),
     default_provider: System.get_env("AI_DEFAULT_PROVIDER", "anthropic")
 
+  # OpenTelemetry
+  if otlp_endpoint = System.get_env("OTLP_ENDPOINT") do
+    config :opentelemetry, :processors,
+      otel_batch_processor: %{
+        exporter: {:opentelemetry_exporter, %{endpoints: [otlp_endpoint]}}
+      }
+  end
+
+  # Sentry
+  if sentry_dsn = System.get_env("SENTRY_DSN") do
+    config :sentry,
+      dsn: sentry_dsn,
+      environment_name: :prod,
+      enable_source_code_context: true,
+      root_source_code_paths: [File.cwd!()],
+      included_environments: [:prod]
+  end
+
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
   # want to use a different value for prod and you most likely don't want

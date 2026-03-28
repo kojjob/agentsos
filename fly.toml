@@ -1,5 +1,5 @@
-app = "founder-pad"
-primary_region = "iad"
+app = "agentsos"
+primary_region = "lhr"
 kill_signal = "SIGTERM"
 kill_timeout = "5s"
 
@@ -9,11 +9,13 @@ kill_timeout = "5s"
   release_command = "/app/bin/migrate"
 
 [env]
-  PHX_HOST = "founder-pad.fly.dev"
-  PORT = "8080"
+  PHX_HOST = "agentsos.fly.dev"
+  PORT = "4000"
+  ECTO_IPV6 = "true"
+  ERL_AFLAGS = "-proto_dist inet6_tcp"
 
 [http_service]
-  internal_port = 8080
+  internal_port = 4000
   force_https = true
   auto_stop_machines = "stop"
   auto_start_machines = true
@@ -23,9 +25,11 @@ kill_timeout = "5s"
   [http_service.concurrency]
     type = "connections"
     hard_limit = 1000
-    soft_limit = 1000
+    soft_limit = 800
 
-[[vm]]
-  memory = "1gb"
-  cpu_kind = "shared"
-  cpus = 1
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/health"

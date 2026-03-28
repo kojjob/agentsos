@@ -96,6 +96,17 @@ config :agent_sos, Oban,
   queues: [default: 10, mailers: 20, billing: 5, heartbeats: 20],
   repo: AgentSos.Repo
 
+# OpenTelemetry
+config :opentelemetry,
+  span_processor: :batch,
+  traces_exporter: :none  # Override in prod
+
+# Sentry
+config :sentry,
+  client: Sentry.HackneyClient,
+  enable_source_code_context: true,
+  root_source_code_paths: [File.cwd!()]
+
 # Stripe (keys loaded from runtime.exs)
 config :stripity_stripe,
   api_version: "2024-04-10"
