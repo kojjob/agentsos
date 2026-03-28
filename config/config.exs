@@ -64,12 +64,19 @@ config :phoenix, :json_library, Jason
 config :agent_sos,
   ash_domains: [
     AgentSos.Accounts,
+    AgentSos.Agents,
     AgentSos.Billing,
     AgentSos.Notifications,
     AgentSos.Audit,
     AgentSos.FeatureFlags,
     AgentSos.Webhooks,
-    AgentSos.Analytics
+    AgentSos.Analytics,
+    AgentSos.Issues,
+    AgentSos.Runs,
+    AgentSos.Goals,
+    AgentSos.Approvals,
+    AgentSos.Secrets,
+    AgentSos.Templates
   ]
 
 # Token signing secret — loaded from env var; fallback only for dev/test
