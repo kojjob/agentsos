@@ -53,15 +53,9 @@ jobs:
       - name: Install dependencies
         run: mix deps.get
 
-      - name: Compile
-        run: mix compile
-
-      - name: Setup database
-        run: mix ecto.create && mix ecto.migrate
-        env:
-          DATABASE_URL: ecto://postgres:postgres@localhost/agent_sos_test
-
-      - name: Run tests
-        run: mix test
-        env:
-          DATABASE_URL: ecto://postgres:postgres@localhost/agent_sos_test
+      - name: Compile and test
+        run: |
+          mix compile
+          mix ecto.create
+          mix ecto.migrate
+          mix test
