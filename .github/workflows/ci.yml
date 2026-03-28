@@ -53,9 +53,14 @@ jobs:
       - name: Install dependencies
         run: mix deps.get
 
-      - name: Compile and test
-        run: |
-          mix compile
-          mix ecto.create
-          mix ecto.migrate
-          mix test
+      - name: Clean stale builds
+        run: mix clean --deps
+
+      - name: Compile
+        run: mix compile --force
+
+      - name: Setup database
+        run: mix ecto.create && mix ecto.migrate
+
+      - name: Run tests
+        run: mix test
