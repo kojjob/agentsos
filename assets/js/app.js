@@ -50,6 +50,17 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
+// Keyboard shortcuts
+document.addEventListener("keydown", function(e) {
+  // Don't trigger in inputs
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") return;
+
+  if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+    e.preventDefault();
+    document.querySelector('[aria-label="Global search"]')?.focus();
+  }
+});
+
 // The lines below enable quality of life phoenix_live_reload
 // development features:
 //

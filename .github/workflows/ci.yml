@@ -45,6 +45,5 @@ jobs:
           mix local.rebar --force
           mix deps.get
 
-      - name: Build, migrate, test
-        run: |
-          mix do compile, ecto.create, ecto.migrate, test
+      - name: Run tests
+        run: mix test

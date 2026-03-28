@@ -9,7 +9,7 @@ defmodule AgentSosWeb.SettingsLiveTest do
       {:ok, _view, html} = live(conn, ~p"/settings")
 
       assert html =~ "Settings"
-      assert html =~ "General Profile"
+      assert html =~ "Profile"
       assert html =~ "Security"
       assert html =~ to_string(user.email)
     end
