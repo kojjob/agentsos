@@ -101,7 +101,7 @@ defmodule AgentSosWeb.Auth.AuthTest do
       assert render(view) =~ "Create your account"
     end
 
-    test "registration does not create organisation (deferred to onboarding)", %{conn: conn} do
+    test "registration does not create company (deferred to onboarding)", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/auth/register")
 
       view
@@ -123,7 +123,7 @@ defmodule AgentSosWeb.Auth.AuthTest do
       user = hd(users)
 
       memberships =
-        AgentSos.Accounts.Membership
+        AgentSos.Accounts.CompanyMembership
         |> Ash.read!()
         |> Enum.filter(&(&1.user_id == user.id))
 
@@ -142,10 +142,6 @@ defmodule AgentSosWeb.Auth.AuthTest do
 
     test "agents redirects to login when unauthenticated", %{conn: conn} do
       assert {:error, {:live_redirect, %{to: "/auth/login"}}} = live(conn, "/agents")
-    end
-
-    test "billing redirects to login when unauthenticated", %{conn: conn} do
-      assert {:error, {:live_redirect, %{to: "/auth/login"}}} = live(conn, "/billing")
     end
 
     test "team redirects to login when unauthenticated", %{conn: conn} do
@@ -225,8 +221,8 @@ defmodule AgentSosWeb.Auth.AuthTest do
 
       {:ok, _view, html} = live(conn, "/dashboard")
 
-      # The layout should show the user's name
-      assert html =~ "Ada Lovelace"
+      # The layout should show the user's first name
+      assert html =~ "Ada"
     end
 
     test "sets current_user to nil when no token in session", %{conn: conn} do

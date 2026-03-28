@@ -1,12 +1,16 @@
-# Find eligible builder and runner images at https://hub.docker.com/_/elixir
-ARG ELIXIR_VERSION=1.19.5
-ARG OTP_VERSION=28.0
-ARG DEBIAN_VERSION=bookworm-20240904-slim
+# ============================================================
+# AgentSOS — Production Dockerfile
+# Multi-stage build for minimal image size (~100MB)
+# ============================================================
+
+# Build stage
+ARG ELIXIR_VERSION=1.17.3
+ARG OTP_VERSION=27.2
+ARG DEBIAN_VERSION=bookworm-20241016-slim
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 
-# Build stage
-FROM ${BUILDER_IMAGE} AS builder
+FROM ${BUILDER_IMAGE} as builder
 
 # Install build dependencies
 RUN apt-get update -y && apt-get install -y build-essential git \
@@ -27,8 +31,8 @@ COPY mix.exs mix.lock ./
 RUN mix deps.get --only $MIX_ENV
 RUN mkdir config
 
-# Copy compile-time config files
-COPY config/config.exs config/branding.exs config/${MIX_ENV}.exs config/
+# Copy compile-time config
+COPY config/config.exs config/${MIX_ENV}.exs config/branding.exs config/plans.exs config/
 RUN mix deps.compile
 
 # Copy application code
@@ -46,31 +50,34 @@ RUN mix compile
 COPY config/runtime.exs config/
 RUN mix release
 
-# Runner stage
+# ============================================================
+# Runner stage — minimal runtime image
+# ============================================================
 FROM ${RUNNER_IMAGE}
 
 RUN apt-get update -y && \
-    apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates \
-    && apt-get clean && rm -f /var/lib/apt/lists/*_*
+  apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates \
+  && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
-# Set the locale
+# Set locale
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
-
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
-WORKDIR "/app"
+WORKDIR /app
 RUN chown nobody /app
 
 # Set runner ENV
 ENV MIX_ENV="prod"
-ENV PHX_SERVER=true
 
 # Copy release from builder
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/agent_sos ./
 
 USER nobody
 
-# Run the Phoenix app
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -sf http://localhost:${PORT:-4000}/health || exit 1
+
 CMD ["/app/bin/server"]

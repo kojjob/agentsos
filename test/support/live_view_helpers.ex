@@ -20,7 +20,7 @@ defmodule AgentSos.LiveViewHelpers do
   @doc "Create a user, org, and membership, returning {conn, user, org}."
   def setup_authenticated_user(conn) do
     user = Factory.create_user!()
-    org = Factory.create_organisation!()
+    org = Factory.create_company!()
     Factory.create_membership!(user, org, :owner)
 
     token = AshAuthentication.user_to_subject(user)

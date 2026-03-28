@@ -23,7 +23,7 @@ defmodule AgentSos.Factory do
     |> Ash.create!()
   end
 
-  def build_organisation(attrs \\ %{}) do
+  def build_company(attrs \\ %{}) do
     default = %{
       name: "Test Org #{System.unique_integer([:positive])}"
     }
@@ -31,17 +31,17 @@ defmodule AgentSos.Factory do
     Map.merge(default, Map.new(attrs))
   end
 
-  def create_organisation!(attrs \\ %{}) do
-    params = build_organisation(attrs)
+  def create_company!(attrs \\ %{}) do
+    params = build_company(attrs)
 
-    AgentSos.Accounts.Organisation
+    AgentSos.Accounts.Company
     |> Ash.Changeset.for_create(:create, params)
     |> Ash.create!()
   end
 
   def create_membership!(user, org, role \\ :member) do
-    AgentSos.Accounts.Membership
-    |> Ash.Changeset.for_create(:create, %{role: role, user_id: user.id, organisation_id: org.id})
+    AgentSos.Accounts.CompanyMembership
+    |> Ash.Changeset.for_create(:create, %{role: role, user_id: user.id, company_id: org.id})
     |> Ash.create!()
   end
 
@@ -73,7 +73,7 @@ defmodule AgentSos.Factory do
       status: :paid,
       period_start: Date.utc_today() |> Date.beginning_of_month(),
       period_end: Date.utc_today() |> Date.end_of_month(),
-      organisation_id: org.id
+      company_id: org.id
     }
 
     AgentSos.Billing.Invoice

@@ -58,6 +58,7 @@ defmodule AgentSos.MixProject do
       {:ash_authentication, "~> 4.0"},
       {:ash_authentication_phoenix, "~> 2.0"},
       {:ash_json_api, "~> 1.0"},
+      {:open_api_spex, "~> 3.16"},
       {:ash_graphql, "~> 1.0"},
 
       # Background jobs
@@ -87,12 +88,24 @@ defmodule AgentSos.MixProject do
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.1"},
 
+      # Observability
+      {:opentelemetry, "~> 1.4"},
+      {:opentelemetry_api, "~> 1.3"},
+      {:opentelemetry_exporter, "~> 1.7"},
+      {:opentelemetry_phoenix, "~> 1.2"},
+      {:opentelemetry_oban, "~> 1.1"},
+      {:opentelemetry_ecto, "~> 1.2"},
+
       # Database
       {:ecto_sql, "~> 3.12"},
       {:postgrex, ">= 0.0.0"},
 
       # Security
       {:bcrypt_elixir, "~> 3.0"},
+
+      # Error tracking
+      {:sentry, "~> 10.0"},
+      {:hackney, "~> 1.20"},
 
       # SAT solver (required by Ash policies)
       {:simple_sat, "~> 0.1"},

@@ -64,12 +64,19 @@ config :phoenix, :json_library, Jason
 config :agent_sos,
   ash_domains: [
     AgentSos.Accounts,
+    AgentSos.Agents,
     AgentSos.Billing,
     AgentSos.Notifications,
     AgentSos.Audit,
     AgentSos.FeatureFlags,
     AgentSos.Webhooks,
-    AgentSos.Analytics
+    AgentSos.Analytics,
+    AgentSos.Issues,
+    AgentSos.Runs,
+    AgentSos.Goals,
+    AgentSos.Approvals,
+    AgentSos.Secrets,
+    AgentSos.Templates
   ]
 
 # Token signing secret — loaded from env var; fallback only for dev/test
@@ -88,6 +95,17 @@ config :agent_sos, Oban,
   engine: Oban.Engines.Basic,
   queues: [default: 10, mailers: 20, billing: 5, heartbeats: 20],
   repo: AgentSos.Repo
+
+# OpenTelemetry
+config :opentelemetry,
+  span_processor: :batch,
+  traces_exporter: :none  # Override in prod
+
+# Sentry
+config :sentry,
+  client: Sentry.HackneyClient,
+  enable_source_code_context: true,
+  root_source_code_paths: [File.cwd!()]
 
 # Stripe (keys loaded from runtime.exs)
 config :stripity_stripe,

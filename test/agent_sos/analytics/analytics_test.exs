@@ -8,7 +8,7 @@ defmodule AgentSos.AnalyticsTest do
   describe "AppEvent tracking" do
     test "tracks an event with all fields" do
       user = create_user!()
-      org = create_organisation!()
+      org = create_company!()
 
       assert {:ok, event} =
                Analytics.track("agent.run",
@@ -19,7 +19,7 @@ defmodule AgentSos.AnalyticsTest do
 
       assert event.event_name == "agent.run"
       assert event.actor_id == user.id
-      assert event.organisation_id == org.id
+      assert event.company_id == org.id
       assert event.metadata["duration_ms"] == 1500
     end
 
@@ -38,7 +38,7 @@ defmodule AgentSos.AnalyticsTest do
     end
 
     test "broadcasts event to org channel" do
-      org = create_organisation!()
+      org = create_company!()
       Phoenix.PubSub.subscribe(AgentSos.PubSub, "org_events:#{org.id}")
 
       Analytics.track("test.event", org_id: org.id)
@@ -53,8 +53,8 @@ defmodule AgentSos.AnalyticsTest do
   end
 
   describe "AppEvent querying" do
-    test "filters events by organisation" do
-      org = create_organisation!()
+    test "filters events by company" do
+      org = create_company!()
       Analytics.track("event.a", org_id: org.id)
       Analytics.track("event.b", org_id: org.id)
       Analytics.track("event.c")
@@ -66,7 +66,7 @@ defmodule AgentSos.AnalyticsTest do
 
   describe "SearchConsoleData" do
     test "creates GSC data entry" do
-      org = create_organisation!()
+      org = create_company!()
 
       assert {:ok, data} =
                SearchConsoleData
@@ -77,7 +77,7 @@ defmodule AgentSos.AnalyticsTest do
                  impressions: 1500,
                  position: 3.2,
                  ctr: 0.028,
-                 organisation_id: org.id,
+                 company_id: org.id,
                  fetched_at: DateTime.utc_now()
                })
                |> Ash.create()
@@ -97,18 +97,18 @@ defmodule AgentSos.AnalyticsTest do
 
   describe "GscSyncWorker" do
     test "succeeds with stub data" do
-      org = create_organisation!()
+      org = create_company!()
 
       assert :ok =
                AgentSos.Analytics.Workers.GscSyncWorker.perform(
-                 %Oban.Job{args: %{"organisation_id" => org.id}}
+                 %Oban.Job{args: %{"company_id" => org.id}}
                )
     end
   end
 
   describe "edge cases" do
     test "handles high-frequency event tracking" do
-      org = create_organisation!()
+      org = create_company!()
 
       tasks =
         for i <- 1..30 do

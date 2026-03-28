@@ -6,8 +6,8 @@ defmodule AgentSos.Billing.Workers.StripeHandlerTest do
   alias AgentSos.Billing.Workers.StripeHandler
 
   describe "checkout.session.completed" do
-    test "creates subscription for the organisation" do
-      org = create_organisation!()
+    test "creates subscription for the company" do
+      org = create_company!()
       plan = create_plan!()
 
       job_args = %{
@@ -17,7 +17,7 @@ defmodule AgentSos.Billing.Workers.StripeHandlerTest do
             "subscription" => "sub_test_123",
             "customer" => "cus_test_456",
             "metadata" => %{
-              "organisation_id" => org.id,
+              "company_id" => org.id,
               "plan_id" => plan.id
             }
           }
@@ -31,14 +31,14 @@ defmodule AgentSos.Billing.Workers.StripeHandlerTest do
       assert subscription.stripe_subscription_id == "sub_test_123"
       assert subscription.stripe_customer_id == "cus_test_456"
       assert subscription.status == :active
-      assert subscription.organisation_id == org.id
+      assert subscription.company_id == org.id
       assert subscription.plan_id == plan.id
     end
   end
 
   describe "customer.subscription.updated" do
     test "updates subscription status" do
-      org = create_organisation!()
+      org = create_company!()
       plan = create_plan!()
       subscription = create_subscription!(org, plan, "sub_update_123", "cus_update_456")
 
@@ -65,7 +65,7 @@ defmodule AgentSos.Billing.Workers.StripeHandlerTest do
 
   describe "customer.subscription.deleted" do
     test "marks subscription as canceled" do
-      org = create_organisation!()
+      org = create_company!()
       plan = create_plan!()
       subscription = create_subscription!(org, plan, "sub_delete_123", "cus_delete_456")
 
@@ -88,7 +88,7 @@ defmodule AgentSos.Billing.Workers.StripeHandlerTest do
 
   describe "invoice.payment_succeeded" do
     test "creates invoice with paid status" do
-      org = create_organisation!()
+      org = create_company!()
       plan = create_plan!()
       _subscription = create_subscription!(org, plan, "sub_inv_123", "cus_inv_456")
 
@@ -113,13 +113,13 @@ defmodule AgentSos.Billing.Workers.StripeHandlerTest do
       assert invoice != nil
       assert invoice.status == :paid
       assert invoice.amount_cents == 2900
-      assert invoice.organisation_id == org.id
+      assert invoice.company_id == org.id
     end
   end
 
   describe "invoice.payment_failed" do
     test "creates invoice with failed status" do
-      org = create_organisation!()
+      org = create_company!()
       plan = create_plan!()
       _subscription = create_subscription!(org, plan, "sub_fail_123", "cus_fail_456")
 
@@ -153,7 +153,7 @@ defmodule AgentSos.Billing.Workers.StripeHandlerTest do
       stripe_subscription_id: stripe_sub_id,
       stripe_customer_id: stripe_cust_id,
       status: :active,
-      organisation_id: org.id,
+      company_id: org.id,
       plan_id: plan.id
     })
     |> Ash.create!()
