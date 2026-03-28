@@ -48,7 +48,12 @@ jobs:
       - name: Compile and test
         run: |
           mix compile
-          elixir -e 'Code.ensure_loaded!(AgentSos.Repo) |> IO.inspect(label: "Repo loaded")'
+          echo "=== BEAM files in ebin ==="
+          ls _build/test/lib/agent_sos/ebin/*.beam 2>/dev/null | wc -l
+          ls _build/test/lib/agent_sos/ebin/ 2>/dev/null | grep Repo || echo "NO REPO BEAM"
+          echo "=== All ebin files ==="
+          ls _build/test/lib/agent_sos/ebin/ 2>/dev/null | head -20
+          mix run -e 'IO.inspect(Code.ensure_loaded(AgentSos.Repo))'
           mix ecto.create
           mix ecto.migrate
           mix test
