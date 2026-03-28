@@ -194,13 +194,17 @@ defmodule AgentSosWeb.Plugs.RateLimiterTest do
 
   describe "edge cases" do
     test "handles missing authorization header" do
-      conn = build_conn() |> RateLimiter.call(@opts)
+      unique_ip = {10, 6, System.unique_integer([:positive]) |> rem(255), 1}
+      conn = build_conn() |> Map.put(:remote_ip, unique_ip) |> RateLimiter.call(@opts)
       refute conn.halted
     end
 
     test "handles malformed authorization header" do
+      unique_ip = {10, 7, System.unique_integer([:positive]) |> rem(255), 1}
+
       conn =
         build_conn()
+        |> Map.put(:remote_ip, unique_ip)
         |> put_req_header("authorization", "InvalidFormat")
         |> RateLimiter.call(@opts)
 
@@ -208,8 +212,11 @@ defmodule AgentSosWeb.Plugs.RateLimiterTest do
     end
 
     test "handles Basic auth header (not Bearer)" do
+      unique_ip = {10, 8, System.unique_integer([:positive]) |> rem(255), 1}
+
       conn =
         build_conn()
+        |> Map.put(:remote_ip, unique_ip)
         |> put_req_header("authorization", "Basic dXNlcjpwYXNz")
         |> RateLimiter.call(@opts)
 

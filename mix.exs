@@ -58,6 +58,7 @@ defmodule AgentSos.MixProject do
       {:ash_authentication, "~> 4.0"},
       {:ash_authentication_phoenix, "~> 2.0"},
       {:ash_json_api, "~> 1.0"},
+      {:open_api_spex, "~> 3.16"},
       {:ash_graphql, "~> 1.0"},
 
       # Background jobs
