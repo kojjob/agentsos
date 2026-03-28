@@ -1,22 +1,17 @@
-@import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&display=swap');
+@import "tailwindcss" source(none);
+@source "../css";
+@source "../js";
+@source "../../lib/agent_sos_web";
 
-/* Phoenix form/liveview utilities */
-@plugin "../../deps/phoenix/priv/static/phoenix.css";
-@plugin "../../deps/phoenix_live_view/priv/static/phoenix_live_view.css";
-
-@source "../../lib/agent_sos_web.ex";
-@source "../../lib/agent_sos_web/**/*.*ex";
-
-/* A Tailwind plugin that makes "hero-#{ICON}" classes available. */
+/* Heroicons plugin */
 @plugin "../vendor/heroicons";
 
-/* Add variants based on LiveView classes */
+/* LiveView variants */
 @custom-variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
 @custom-variant phx-submit-loading (.phx-submit-loading&, .phx-submit-loading &);
 @custom-variant phx-change-loading (.phx-change-loading&, .phx-change-loading &);
 
-/* Make LiveView wrapper divs transparent for layout */
+/* LiveView wrapper transparency */
 [data-phx-session], [data-phx-teleported-src] { display: contents }
 
 /* ============================================================
