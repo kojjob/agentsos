@@ -1683,7 +1683,7 @@
     <div onclick="closeHireModal()" style="position:absolute; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);"></div>
 
     <!-- Modal -->
-    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:100%; max-width:580px; max-height:90vh; overflow-y:auto; background:var(--s1); border:1px solid var(--border); border-radius:14px; box-shadow: 0 24px 48px -12px rgba(0,0,0,0.35);" class="animate-in">
+    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:100%; max-width:640px; max-height:90vh; overflow-y:auto; background:var(--s1); border:1px solid var(--border); border-radius:14px; box-shadow: 0 24px 48px -12px rgba(0,0,0,0.35);" class="animate-in">
 
       <!-- Header -->
       <div style="padding:24px 28px 0; display:flex; align-items:center; justify-content:space-between;">
@@ -1701,173 +1701,242 @@
         </button>
       </div>
 
-      <!-- Form -->
-      <div style="padding:20px 28px 28px;">
-        <!-- Section: Identity -->
-        <div class="metric-label" style="margin-bottom:12px; margin-top:4px;">Identity</div>
-        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
+      <!-- Step Indicators -->
+      <div style="padding:20px 28px 0; display:flex; align-items:center; justify-content:center; gap:0;">
+        <div class="hire-step-ind" data-step="1" style="display:flex; align-items:center; gap:8px;">
+          <div class="hire-step-dot active" id="hire-dot-1" style="width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; font-family:'JetBrains Mono',monospace; transition:all 200ms;">1</div>
+          <span style="font-size:12px; font-weight:600; color:var(--t2);">Choose Role</span>
+        </div>
+        <div style="width:40px; height:1px; background:var(--border); margin:0 12px;"></div>
+        <div class="hire-step-ind" data-step="2" style="display:flex; align-items:center; gap:8px;">
+          <div class="hire-step-dot" id="hire-dot-2" style="width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; font-family:'JetBrains Mono',monospace; transition:all 200ms;">2</div>
+          <span style="font-size:12px; font-weight:600; color:var(--t3);">Configure</span>
+        </div>
+        <div style="width:40px; height:1px; background:var(--border); margin:0 12px;"></div>
+        <div class="hire-step-ind" data-step="3" style="display:flex; align-items:center; gap:8px;">
+          <div class="hire-step-dot" id="hire-dot-3" style="width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; font-family:'JetBrains Mono',monospace; transition:all 200ms;">3</div>
+          <span style="font-size:12px; font-weight:600; color:var(--t3);">Budget & Review</span>
+        </div>
+      </div>
+
+      <!-- Step 1: Choose Role -->
+      <div id="hire-step-1" class="hire-step" style="padding:20px 28px 28px;">
+        <div class="metric-label" style="margin-bottom:14px; margin-top:4px;">Select a Role Template</div>
+        <div id="role-grid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px;">
+          <!-- Cards rendered by JS -->
+        </div>
+
+        <!-- Navigation -->
+        <div style="display:flex; justify-content:flex-end; margin-top:20px;">
+          <button class="btn btn-primary" id="hire-next-1" onclick="hireGoStep(2)" disabled style="padding:9px 20px; opacity:0.5; cursor:not-allowed;">
+            Next <span class="mso mso-xs" style="margin-left:2px;">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Configure -->
+      <div id="hire-step-2" class="hire-step" style="padding:20px 28px 28px; display:none;">
+        <!-- Model Section -->
+        <div class="metric-label" style="margin-bottom:12px; margin-top:4px;">Model</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
           <div>
-            <label style="font-size:12px; font-weight:600; color:var(--t2); display:block; margin-bottom:5px;">Agent Name <span style="color:#ef4444;">*</span></label>
-            <input class="input" style="width:100%;" placeholder="e.g. CTO, Lead Engineer, Research Agent">
-          </div>
-          <div>
-            <label style="font-size:12px; font-weight:600; color:var(--t2); display:block; margin-bottom:5px;">Role / Description</label>
-            <textarea class="input" style="width:100%; min-height:72px; resize:vertical;" placeholder="What is this agent responsible for?"></textarea>
-          </div>
-          <div>
-            <label style="font-size:12px; font-weight:600; color:var(--t2); display:block; margin-bottom:5px;">Reports To</label>
+            <label style="font-size:12px; font-weight:600; color:var(--t2); display:block; margin-bottom:5px;">Provider</label>
             <div style="position:relative;">
-              <select class="input" style="width:100%; appearance:none; padding-right:32px; cursor:pointer;">
-                <option value="">None (root / CEO level)</option>
-                <option>CEO</option>
-                <option>CTO</option>
-                <option>DevOps Lead</option>
+              <select id="hire-provider" class="input" style="width:100%; appearance:none; padding-right:32px; cursor:pointer;">
+                <option value="Anthropic">Anthropic</option>
+                <option value="OpenAI">OpenAI</option>
+                <option value="Google">Google</option>
+              </select>
+              <span class="mso mso-xs" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--t3); pointer-events:none;">unfold_more</span>
+            </div>
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:600; color:var(--t2); display:block; margin-bottom:5px;">Model</label>
+            <div style="position:relative;">
+              <select id="hire-model" class="input" style="width:100%; appearance:none; padding-right:32px; cursor:pointer;">
+                <option value="claude-opus-4-6">claude-opus-4-6</option>
+                <option value="claude-sonnet-4-6">claude-sonnet-4-6</option>
+                <option value="claude-haiku-4-5">claude-haiku-4-5</option>
+                <option value="gpt-4o">gpt-4o</option>
+                <option value="gpt-4o-mini">gpt-4o-mini</option>
+                <option value="gemini-2.5-flash">gemini-2.5-flash</option>
               </select>
               <span class="mso mso-xs" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--t3); pointer-events:none;">unfold_more</span>
             </div>
           </div>
         </div>
 
-        <!-- Divider -->
+        <!-- Cost Savings Tip (hidden by default) -->
+        <div id="hire-cost-tip" style="display:none; background:rgba(34,197,94,0.06); border:1px solid rgba(34,197,94,0.15); border-radius:8px; padding:10px 14px; margin-bottom:20px; font-size:12px; color:#22c55e;">
+          <span class="mso mso-xs" style="vertical-align:middle; margin-right:4px;">tips_and_updates</span>
+          <span id="hire-cost-tip-text"></span>
+        </div>
+
         <div style="height:1px; background:var(--border); margin:0 -28px 20px;"></div>
 
-        <!-- Section: Execution -->
-        <div class="metric-label" style="margin-bottom:12px;">Execution</div>
-        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
-          <div>
-            <label style="font-size:12px; font-weight:600; color:var(--t2); display:block; margin-bottom:5px;">Adapter Type <span style="color:#ef4444;">*</span></label>
-            <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px;">
-              <label class="adapter-option selected" onclick="selectAdapter(this)">
-                <input type="radio" name="adapter" value="claude_local" checked style="display:none;">
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <span class="mso mso-sm" style="color:#6366f1;">psychology</span>
-                  <div>
-                    <div style="font-size:13px; font-weight:600;">Claude Code</div>
-                    <div style="font-size:10px; color:var(--t3);">Local CLI via Port</div>
-                  </div>
-                </div>
-              </label>
-              <label class="adapter-option" onclick="selectAdapter(this)">
-                <input type="radio" name="adapter" value="codex_local" style="display:none;">
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <span class="mso mso-sm" style="color:#22c55e;">code</span>
-                  <div>
-                    <div style="font-size:13px; font-weight:600;">Codex CLI</div>
-                    <div style="font-size:10px; color:var(--t3);">OpenAI Codex process</div>
-                  </div>
-                </div>
-              </label>
-              <label class="adapter-option" onclick="selectAdapter(this)">
-                <input type="radio" name="adapter" value="http" style="display:none;">
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <span class="mso mso-sm" style="color:#f59e0b;">webhook</span>
-                  <div>
-                    <div style="font-size:13px; font-weight:600;">HTTP Webhook</div>
-                    <div style="font-size:10px; color:var(--t3);">POST to external URL</div>
-                  </div>
-                </div>
-              </label>
-              <label class="adapter-option" onclick="selectAdapter(this)">
-                <input type="radio" name="adapter" value="beam_native" style="display:none;">
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <span class="mso mso-sm" style="color:#a855f7;">memory</span>
-                  <div>
-                    <div style="font-size:13px; font-weight:600;">Elixir Module</div>
-                    <div style="font-size:10px; color:var(--t3);">BeamNative supervised task</div>
-                  </div>
-                </div>
-              </label>
-              <label class="adapter-option" onclick="selectAdapter(this)">
-                <input type="radio" name="adapter" value="gemini_local" style="display:none;">
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <span class="mso mso-sm" style="color:#3b82f6;">auto_awesome</span>
-                  <div>
-                    <div style="font-size:13px; font-weight:600;">Gemini CLI</div>
-                    <div style="font-size:10px; color:var(--t3);">Google Gemini process</div>
-                  </div>
-                </div>
-              </label>
-              <label class="adapter-option" onclick="selectAdapter(this)">
-                <input type="radio" name="adapter" value="process" style="display:none;">
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <span class="mso mso-sm" style="color:var(--t2);">terminal</span>
-                  <div>
-                    <div style="font-size:13px; font-weight:600;">Shell Process</div>
-                    <div style="font-size:10px; color:var(--t3);">Generic command execution</div>
-                  </div>
-                </div>
-              </label>
-            </div>
-          </div>
+        <!-- Skills -->
+        <div class="metric-label" style="margin-bottom:10px;">Skills</div>
+        <div id="hire-skills" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;">
+          <!-- Tags rendered by JS -->
+        </div>
+        <div style="display:flex; gap:6px; margin-bottom:20px;">
+          <input id="hire-skill-input" class="input" style="flex:1; font-size:12px;" placeholder="Add a skill..." onkeydown="if(event.key==='Enter'){hireAddSkill();event.preventDefault();}">
+          <button class="btn btn-ghost" style="padding:6px 10px; font-size:12px;" onclick="hireAddSkill()">
+            <span class="mso mso-xs">add</span>
+          </button>
         </div>
 
-        <!-- Divider -->
         <div style="height:1px; background:var(--border); margin:0 -28px 20px;"></div>
 
-        <!-- Section: Budget & Schedule -->
-        <div class="metric-label" style="margin-bottom:12px;">Budget & Schedule</div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:24px;">
-          <div>
-            <label style="font-size:12px; font-weight:600; color:var(--t2); display:block; margin-bottom:5px;">Monthly Budget</label>
-            <div style="position:relative;">
-              <span class="text-mono" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:13px; font-weight:600; color:var(--t3);">$</span>
-              <input class="input" type="number" value="500" min="0" step="50" style="width:100%; padding-left:26px;">
-            </div>
-            <p style="font-size:10px; color:var(--t3); margin-top:4px;">Set to 0 for unlimited</p>
-          </div>
-          <div>
-            <label style="font-size:12px; font-weight:600; color:var(--t2); display:block; margin-bottom:5px;">Heartbeat Schedule</label>
-            <input class="input" style="width:100%;" placeholder="*/30 * * * *" value="">
-            <p style="font-size:10px; color:var(--t3); margin-top:4px;">Cron expression, blank = manual only</p>
-          </div>
+        <!-- Tools -->
+        <div class="metric-label" style="margin-bottom:10px;">Tools</div>
+        <div id="hire-tools" style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:20px;">
+          <label class="hire-tool-check" style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:500; cursor:pointer;">
+            <input type="checkbox" value="file_read" style="accent-color:#6366f1;"> file_read
+          </label>
+          <label class="hire-tool-check" style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:500; cursor:pointer;">
+            <input type="checkbox" value="file_write" style="accent-color:#6366f1;"> file_write
+          </label>
+          <label class="hire-tool-check" style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:500; cursor:pointer;">
+            <input type="checkbox" value="terminal" style="accent-color:#6366f1;"> terminal
+          </label>
+          <label class="hire-tool-check" style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:500; cursor:pointer;">
+            <input type="checkbox" value="git" style="accent-color:#6366f1;"> git
+          </label>
+          <label class="hire-tool-check" style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:500; cursor:pointer;">
+            <input type="checkbox" value="web_search" style="accent-color:#6366f1;"> web_search
+          </label>
+          <label class="hire-tool-check" style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:500; cursor:pointer;">
+            <input type="checkbox" value="browser" style="accent-color:#6366f1;"> browser
+          </label>
         </div>
 
-        <!-- Schedule presets -->
-        <div style="display:flex; gap:6px; margin-bottom:24px; flex-wrap:wrap;">
-          <button class="schedule-preset" onclick="setSchedule(this, '*/5 * * * *')">Every 5m</button>
-          <button class="schedule-preset" onclick="setSchedule(this, '*/15 * * * *')">Every 15m</button>
-          <button class="schedule-preset" onclick="setSchedule(this, '*/30 * * * *')">Every 30m</button>
-          <button class="schedule-preset" onclick="setSchedule(this, '0 * * * *')">Hourly</button>
-          <button class="schedule-preset" onclick="setSchedule(this, '0 */6 * * *')">Every 6h</button>
-          <button class="schedule-preset" onclick="setSchedule(this, '0 9 * * 1-5')">Weekdays 9am</button>
-          <button class="schedule-preset active-preset" onclick="setSchedule(this, '')">Manual only</button>
-        </div>
-
-        <!-- Divider -->
         <div style="height:1px; background:var(--border); margin:0 -28px 20px;"></div>
 
-        <!-- Summary -->
-        <div style="background:var(--s2); border-radius:8px; padding:14px 16px; margin-bottom:20px;">
-          <div class="metric-label" style="margin-bottom:8px; font-size:9px;">Summary</div>
-          <div style="display:flex; gap:20px; font-size:12px;">
-            <div><span style="color:var(--t3);">Adapter:</span> <span class="text-mono" style="font-weight:600;" id="summary-adapter">claude_local</span></div>
-            <div><span style="color:var(--t3);">Budget:</span> <span class="text-mono" style="font-weight:600;">$500/mo</span></div>
-            <div><span style="color:var(--t3);">Schedule:</span> <span class="text-mono" style="font-weight:600;">Manual</span></div>
+        <!-- System Prompt -->
+        <div class="metric-label" style="margin-bottom:10px;">System Prompt</div>
+        <textarea id="hire-prompt" class="input" style="width:100%; min-height:80px; resize:vertical; font-size:12px; margin-bottom:20px;" placeholder="System prompt for this agent..."></textarea>
+
+        <!-- Temperature & Max Tokens -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+          <div>
+            <label style="font-size:12px; font-weight:600; color:var(--t2); display:flex; justify-content:space-between; margin-bottom:5px;">
+              Temperature
+              <span id="hire-temp-val" class="text-mono" style="color:var(--accent-t); font-size:11px;">0.5</span>
+            </label>
+            <input id="hire-temp" type="range" min="0" max="2" step="0.1" value="0.5" style="width:100%; accent-color:#6366f1;" oninput="document.getElementById('hire-temp-val').textContent=this.value">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:600; color:var(--t2); display:block; margin-bottom:5px;">Max Tokens</label>
+            <input id="hire-max-tokens" class="input" type="number" value="4096" min="256" step="256" style="width:100%;">
           </div>
         </div>
 
-        <!-- Actions -->
-        <div style="display:flex; align-items:center; justify-content:space-between;">
-          <p style="font-size:11px; color:var(--t3);">Agent will require board approval before activation</p>
-          <div style="display:flex; gap:8px;">
-            <button class="btn btn-ghost" onclick="closeHireModal()">Cancel</button>
-            <button class="btn btn-primary" onclick="closeHireModal()" style="padding:9px 20px;">
-              <span class="mso mso-xs">rocket_launch</span> Hire Agent
-            </button>
-          </div>
+        <!-- Navigation -->
+        <div style="display:flex; justify-content:space-between; margin-top:4px;">
+          <button class="btn btn-ghost" onclick="hireGoStep(1)">
+            <span class="mso mso-xs" style="margin-right:2px;">arrow_back</span> Back
+          </button>
+          <button class="btn btn-primary" onclick="hireGoStep(3)" style="padding:9px 20px;">
+            Next <span class="mso mso-xs" style="margin-left:2px;">arrow_forward</span>
+          </button>
         </div>
       </div>
+
+      <!-- Step 3: Budget & Review -->
+      <div id="hire-step-3" class="hire-step" style="padding:20px 28px 28px; display:none;">
+        <!-- Budget -->
+        <div class="metric-label" style="margin-bottom:12px; margin-top:4px;">Budget</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+          <div>
+            <label style="font-size:12px; font-weight:600; color:var(--t2); display:block; margin-bottom:5px;">Monthly Budget ($)</label>
+            <div style="position:relative;">
+              <span class="text-mono" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:13px; font-weight:600; color:var(--t3);">$</span>
+              <input id="hire-budget" class="input" type="number" value="500" min="0" step="50" style="width:100%; padding-left:26px;">
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; justify-content:center; gap:4px; padding-top:18px;">
+            <div style="font-size:12px; color:var(--t3);"><span id="hire-est-run" class="text-mono" style="font-weight:600; color:var(--t2);">~$0.05</span> per run</div>
+            <div style="font-size:12px; color:var(--t3);"><span id="hire-est-month" class="text-mono" style="font-weight:600; color:var(--t2);">~$200/mo</span> at every 30 min</div>
+          </div>
+        </div>
+
+        <!-- Schedule Presets -->
+        <div class="metric-label" style="margin-bottom:10px;">Schedule</div>
+        <div style="display:flex; gap:6px; margin-bottom:24px; flex-wrap:wrap;">
+          <button class="schedule-preset" onclick="hireSetSchedule(this, '*/5 * * * *')">Every 5m</button>
+          <button class="schedule-preset" onclick="hireSetSchedule(this, '*/15 * * * *')">Every 15m</button>
+          <button class="schedule-preset" onclick="hireSetSchedule(this, '*/30 * * * *')">Every 30m</button>
+          <button class="schedule-preset" onclick="hireSetSchedule(this, '0 * * * *')">Hourly</button>
+          <button class="schedule-preset" onclick="hireSetSchedule(this, '0 */6 * * *')">Every 6h</button>
+          <button class="schedule-preset" onclick="hireSetSchedule(this, '0 9 * * 1-5')">Weekdays 9am</button>
+          <button class="schedule-preset active-preset" onclick="hireSetSchedule(this, '')">Manual only</button>
+        </div>
+
+        <div style="height:1px; background:var(--border); margin:0 -28px 20px;"></div>
+
+        <!-- Summary Card -->
+        <div class="metric-label" style="margin-bottom:10px;">Summary</div>
+        <div style="background:var(--s2); border-radius:10px; padding:16px 18px; margin-bottom:24px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:12px;">
+            <div><span style="color:var(--t3);">Role</span><br><span class="text-mono" style="font-weight:700;" id="hire-sum-role">--</span></div>
+            <div><span style="color:var(--t3);">Model</span><br><span class="text-mono" style="font-weight:700;" id="hire-sum-model">--</span></div>
+            <div><span style="color:var(--t3);">Skills</span><br><span class="text-mono" style="font-weight:700;" id="hire-sum-skills">0</span></div>
+            <div><span style="color:var(--t3);">Tools</span><br><span class="text-mono" style="font-weight:700;" id="hire-sum-tools">0</span></div>
+            <div><span style="color:var(--t3);">Budget</span><br><span class="text-mono" style="font-weight:700;" id="hire-sum-budget">$0/mo</span></div>
+            <div><span style="color:var(--t3);">Schedule</span><br><span class="text-mono" style="font-weight:700;" id="hire-sum-schedule">Manual</span></div>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <button class="btn btn-ghost" onclick="hireGoStep(2)">
+            <span class="mso mso-xs" style="margin-right:2px;">arrow_back</span> Back
+          </button>
+          <button class="btn btn-primary" onclick="closeHireModal()" style="padding:9px 20px;">
+            <span class="mso mso-xs">rocket_launch</span> Hire Agent
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 
   <style>
-    /* ── Adapter selection cards ── */
-    .adapter-option {
-      display: block; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border);
-      cursor: pointer; transition: all 120ms; background: var(--canvas);
+    /* ── Hire Wizard: Role cards ── */
+    .hire-role-card {
+      display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+      padding: 14px; border-radius: 10px; border: 1px solid var(--border);
+      cursor: pointer; transition: all 150ms; background: var(--canvas);
     }
-    .adapter-option:hover { border-color: var(--border-h); background: var(--s2); }
-    .adapter-option.selected { border-color: #6366f1; background: var(--accent-s); box-shadow: 0 0 0 1px rgba(99,102,241,0.2); }
+    .hire-role-card:hover { border-color: var(--border-h); background: var(--s2); }
+    .hire-role-card.selected { border-color: #6366f1; background: var(--accent-s); box-shadow: 0 0 0 1px rgba(99,102,241,0.25); }
+    .hire-role-card.custom-card { border-style: dashed; }
+    .hire-role-card.custom-card:hover { border-color: var(--t3); }
+
+    /* ── Hire Wizard: Step dots ── */
+    .hire-step-dot {
+      background: var(--s2); color: var(--t3); border: 1px solid var(--border);
+    }
+    .hire-step-dot.active {
+      background: #6366f1; color: #fff; border-color: #6366f1;
+      box-shadow: 0 2px 8px rgba(99,102,241,0.35);
+    }
+    .hire-step-dot.done {
+      background: var(--accent-s); color: var(--accent-t); border-color: #6366f1;
+    }
+
+    /* ── Hire Wizard: Skill tags ── */
+    .hire-skill-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 5px; font-size: 11px; font-weight: 600;
+      background: var(--accent-s); color: var(--accent-t); border: none; cursor: default;
+    }
+    .hire-skill-tag button {
+      background: none; border: none; cursor: pointer; color: var(--accent-t);
+      font-size: 14px; line-height: 1; padding: 0; margin-left: 2px; opacity: 0.6;
+    }
+    .hire-skill-tag button:hover { opacity: 1; }
 
     /* ── Schedule presets ── */
     .schedule-preset {
@@ -1881,29 +1950,262 @@
     /* ── Modal animation ── */
     @keyframes modal-in { from { opacity:0; transform:translate(-50%,-50%) scale(0.97); } to { opacity:1; transform:translate(-50%,-50%) scale(1); } }
     #hire-modal > div:last-of-type:not([onclick]) { animation: modal-in 200ms ease forwards; }
+
+    /* ── Step transition ── */
+    .hire-step { animation: hire-fade-in 200ms ease; }
+    @keyframes hire-fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 
   <script>
-    // ── Hire Modal ──
+    // ── Hire Modal: Templates ──
+    const hireTemplates = {
+      ceo: { name: "CEO / Strategist", icon: "shield_person", color: "#6366f1", provider: "Anthropic", model: "claude-opus-4-6", cost_run: "$0.15", cost_month: "$500", skills: ["strategy","planning","analysis","leadership"], tools: ["web_search"], temp: 0.7, max_tokens: 8192, budget: 500, prompt: "You are the CEO of an autonomous AI company. Make strategic decisions, set priorities, and coordinate teams." },
+      cto: { name: "CTO / Architect", icon: "architecture", color: "#3b82f6", provider: "Anthropic", model: "claude-sonnet-4-6", cost_run: "$0.08", cost_month: "$300", skills: ["architecture","elixir","system-design","code-review"], tools: ["file_read","file_write","terminal","git"], temp: 0.3, max_tokens: 8192, budget: 300, prompt: "You are the CTO of an AI company. Design system architecture, review code, and guide technical decisions." },
+      frontend: { name: "Frontend Dev", icon: "web", color: "#22c55e", provider: "Anthropic", model: "claude-sonnet-4-6", cost_run: "$0.05", cost_month: "$200", skills: ["react","tailwind","typescript","accessibility"], tools: ["file_read","file_write","terminal"], temp: 0.4, max_tokens: 4096, budget: 200, prompt: "You are a frontend developer. Build responsive, accessible UIs with React and TailwindCSS." },
+      backend: { name: "Backend Dev", icon: "database", color: "#a855f7", provider: "Anthropic", model: "claude-sonnet-4-6", cost_run: "$0.05", cost_month: "$250", skills: ["elixir","phoenix","postgresql","api-design"], tools: ["file_read","file_write","terminal","git"], temp: 0.3, max_tokens: 4096, budget: 250, prompt: "You are a backend developer. Build robust APIs, manage databases, and write clean server-side code." },
+      devops: { name: "DevOps", icon: "cloud", color: "#f59e0b", provider: "OpenAI", model: "gpt-4o-mini", cost_run: "$0.01", cost_month: "$100", skills: ["docker","ci-cd","terraform","monitoring"], tools: ["terminal","file_write"], temp: 0.2, max_tokens: 2048, budget: 100, prompt: "You are a DevOps engineer. Manage CI/CD pipelines, infrastructure, and deployment workflows." },
+      qa: { name: "QA / Testing", icon: "bug_report", color: "#ef4444", provider: "Anthropic", model: "claude-haiku-4-5", cost_run: "$0.01", cost_month: "$80", skills: ["testing","qa","automation"], tools: ["file_read","terminal"], temp: 0.2, max_tokens: 2048, budget: 80, prompt: "You are a QA engineer. Write and run tests, identify bugs, and ensure code quality." },
+      data: { name: "Data Analyst", icon: "analytics", color: "#06b6d4", provider: "Google", model: "gemini-2.5-flash", cost_run: "$0.01", cost_month: "$120", skills: ["sql","python","analytics","visualization"], tools: ["file_read","web_search"], temp: 0.3, max_tokens: 4096, budget: 120, prompt: "You are a data analyst. Query data, generate insights, and create visualizations." },
+      writer: { name: "Writer", icon: "edit_note", color: "#ec4899", provider: "Anthropic", model: "claude-sonnet-4-6", cost_run: "$0.04", cost_month: "$150", skills: ["writing","copywriting","documentation"], tools: ["file_read","file_write"], temp: 0.8, max_tokens: 4096, budget: 150, prompt: "You are a skilled writer. Create compelling content, documentation, and copy." },
+      researcher: { name: "Researcher", icon: "science", color: "#8b5cf6", provider: "Anthropic", model: "claude-opus-4-6", cost_run: "$0.20", cost_month: "$400", skills: ["research","analysis","synthesis"], tools: ["web_search","file_read"], temp: 0.5, max_tokens: 8192, budget: 400, prompt: "You are a research analyst. Investigate topics, synthesize findings, and produce thorough reports." },
+      security: { name: "Security", icon: "security", color: "#dc2626", provider: "OpenAI", model: "gpt-4o", cost_run: "$0.05", cost_month: "$200", skills: ["security","audit","compliance","owasp"], tools: ["terminal","file_read"], temp: 0.2, max_tokens: 4096, budget: 200, prompt: "You are a security engineer. Audit code for vulnerabilities, ensure compliance, and harden systems." }
+    };
+
+    let hireCurrentStep = 1;
+    let hireSelectedRole = null;
+    let hireCurrentSkills = [];
+
+    // ── Open / Close ──
     function openHireModal() {
       document.getElementById('hire-modal').style.display = 'block';
       document.body.style.overflow = 'hidden';
+      hireCurrentStep = 1;
+      hireSelectedRole = null;
+      hireCurrentSkills = [];
+      hireRenderRoleGrid();
+      hireGoStep(1);
     }
     function closeHireModal() {
       document.getElementById('hire-modal').style.display = 'none';
       document.body.style.overflow = '';
     }
-    function selectAdapter(el) {
-      document.querySelectorAll('.adapter-option').forEach(o => o.classList.remove('selected'));
-      el.classList.add('selected');
-      document.getElementById('summary-adapter').textContent = el.querySelector('input').value;
+
+    // ── Render Role Grid ──
+    function hireRenderRoleGrid() {
+      const grid = document.getElementById('role-grid');
+      grid.textContent = '';
+      for (const [key, t] of Object.entries(hireTemplates)) {
+        const card = document.createElement('div');
+        card.className = 'hire-role-card';
+        card.dataset.role = key;
+        card.onclick = function() { hireSelectRole(key); };
+
+        const icon = document.createElement('span');
+        icon.className = 'mso mso-fill';
+        icon.style.cssText = 'font-size:28px; color:' + t.color;
+        icon.textContent = t.icon;
+        card.appendChild(icon);
+
+        const name = document.createElement('div');
+        name.style.cssText = 'font-size:13px; font-weight:700; color:var(--t1);';
+        name.textContent = t.name;
+        card.appendChild(name);
+
+        const meta = document.createElement('div');
+        meta.style.cssText = "font-size:10px; color:var(--t3); font-family:'JetBrains Mono',monospace;";
+        meta.textContent = t.model + ' \u00B7 ' + t.provider;
+        card.appendChild(meta);
+
+        const costs = document.createElement('div');
+        costs.style.cssText = 'display:flex; gap:8px; font-size:10px; color:var(--t3);';
+        costs.textContent = t.cost_run + '/run \u00B7 ~' + t.cost_month + '/mo';
+        card.appendChild(costs);
+
+        const tags = document.createElement('div');
+        tags.style.cssText = 'display:flex; flex-wrap:wrap; gap:4px; margin-top:2px;';
+        t.skills.slice(0, 3).forEach(function(s) {
+          const badge = document.createElement('span');
+          badge.className = 'badge';
+          badge.style.cssText = 'font-size:9px; padding:1px 6px;';
+          badge.textContent = s;
+          tags.appendChild(badge);
+        });
+        card.appendChild(tags);
+
+        grid.appendChild(card);
+      }
+      // Custom card
+      const custom = document.createElement('div');
+      custom.className = 'hire-role-card custom-card';
+      custom.dataset.role = 'custom';
+      custom.onclick = function() { hireSelectRole('custom'); };
+
+      const cIcon = document.createElement('span');
+      cIcon.className = 'mso mso-fill';
+      cIcon.style.cssText = 'font-size:28px; color:var(--t3);';
+      cIcon.textContent = 'add_circle';
+      custom.appendChild(cIcon);
+
+      const cName = document.createElement('div');
+      cName.style.cssText = 'font-size:13px; font-weight:700; color:var(--t1);';
+      cName.textContent = 'Custom';
+      custom.appendChild(cName);
+
+      const cDesc = document.createElement('div');
+      cDesc.style.cssText = 'font-size:10px; color:var(--t3);';
+      cDesc.textContent = 'Define your own agent role from scratch';
+      custom.appendChild(cDesc);
+
+      grid.appendChild(custom);
     }
-    function setSchedule(btn, val) {
-      document.querySelectorAll('.schedule-preset').forEach(b => b.classList.remove('active-preset'));
+
+    // ── Select Role ──
+    function hireSelectRole(key) {
+      hireSelectedRole = key;
+      document.querySelectorAll('.hire-role-card').forEach(function(c) { c.classList.remove('selected'); });
+      var sel = document.querySelector('.hire-role-card[data-role="' + key + '"]');
+      if (sel) sel.classList.add('selected');
+      var btn = document.getElementById('hire-next-1');
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+    }
+
+    // ── Populate Step 2 from template ──
+    function hirePopulateConfig() {
+      if (hireSelectedRole === 'custom') {
+        document.getElementById('hire-provider').value = 'Anthropic';
+        document.getElementById('hire-model').value = 'claude-sonnet-4-6';
+        hireCurrentSkills = [];
+        document.querySelectorAll('#hire-tools input[type="checkbox"]').forEach(function(cb) { cb.checked = false; });
+        document.getElementById('hire-prompt').value = '';
+        document.getElementById('hire-temp').value = 0.5;
+        document.getElementById('hire-temp-val').textContent = '0.5';
+        document.getElementById('hire-max-tokens').value = 4096;
+        document.getElementById('hire-cost-tip').style.display = 'none';
+      } else {
+        var t = hireTemplates[hireSelectedRole];
+        document.getElementById('hire-provider').value = t.provider;
+        document.getElementById('hire-model').value = t.model;
+        hireCurrentSkills = t.skills.slice();
+        document.querySelectorAll('#hire-tools input[type="checkbox"]').forEach(function(cb) {
+          cb.checked = t.tools.indexOf(cb.value) !== -1;
+        });
+        document.getElementById('hire-prompt').value = t.prompt;
+        document.getElementById('hire-temp').value = t.temp;
+        document.getElementById('hire-temp-val').textContent = String(t.temp);
+        document.getElementById('hire-max-tokens').value = t.max_tokens;
+
+        // Cost savings tip
+        var tip = document.getElementById('hire-cost-tip');
+        if (t.model === 'claude-sonnet-4-6' || t.model === 'claude-opus-4-6') {
+          tip.style.display = 'block';
+          var txt = t.model === 'claude-opus-4-6'
+            ? 'Use claude-sonnet-4-6 instead of claude-opus-4-6 to save ~60% (' + t.cost_run + '/run becomes ~$0.05/run)'
+            : 'Use claude-haiku-4-5 instead of claude-sonnet-4-6 to save ~75% (' + t.cost_run + '/run becomes ~$0.01/run)';
+          document.getElementById('hire-cost-tip-text').textContent = txt;
+        } else {
+          tip.style.display = 'none';
+        }
+      }
+      hireRenderSkills();
+    }
+
+    // ── Render skills tags ──
+    function hireRenderSkills() {
+      var container = document.getElementById('hire-skills');
+      container.textContent = '';
+      hireCurrentSkills.forEach(function(s, i) {
+        var tag = document.createElement('span');
+        tag.className = 'hire-skill-tag';
+        tag.appendChild(document.createTextNode(s));
+        var removeBtn = document.createElement('button');
+        removeBtn.textContent = '\u00D7';
+        removeBtn.onclick = function() { hireRemoveSkill(i); };
+        tag.appendChild(removeBtn);
+        container.appendChild(tag);
+      });
+    }
+    function hireRemoveSkill(idx) {
+      hireCurrentSkills.splice(idx, 1);
+      hireRenderSkills();
+    }
+    function hireAddSkill() {
+      var input = document.getElementById('hire-skill-input');
+      var val = input.value.trim().toLowerCase();
+      if (val && hireCurrentSkills.indexOf(val) === -1) {
+        hireCurrentSkills.push(val);
+        hireRenderSkills();
+      }
+      input.value = '';
+    }
+
+    // ── Populate Step 3 summary ──
+    function hirePopulateSummary() {
+      var roleName = hireSelectedRole === 'custom' ? 'Custom' : hireTemplates[hireSelectedRole].name;
+      var model = document.getElementById('hire-model').value;
+      var skillCount = hireCurrentSkills.length;
+      var toolCount = document.querySelectorAll('#hire-tools input[type="checkbox"]:checked').length;
+      var budget = document.getElementById('hire-budget').value || 0;
+      var costRun = hireSelectedRole === 'custom' ? '$0.05' : hireTemplates[hireSelectedRole].cost_run;
+
+      document.getElementById('hire-sum-role').textContent = roleName;
+      document.getElementById('hire-sum-model').textContent = model;
+      document.getElementById('hire-sum-skills').textContent = skillCount + (skillCount === 1 ? ' skill' : ' skills');
+      document.getElementById('hire-sum-tools').textContent = toolCount + (toolCount === 1 ? ' tool' : ' tools');
+      document.getElementById('hire-sum-budget').textContent = '$' + budget + '/mo';
+      document.getElementById('hire-est-run').textContent = '~' + costRun;
+
+      if (hireSelectedRole !== 'custom') {
+        document.getElementById('hire-est-month').textContent = '~' + hireTemplates[hireSelectedRole].cost_month + '/mo';
+        document.getElementById('hire-budget').value = hireTemplates[hireSelectedRole].budget;
+      } else {
+        document.getElementById('hire-est-month').textContent = '~$200/mo';
+      }
+    }
+
+    // ── Schedule ──
+    var hireScheduleVal = '';
+    function hireSetSchedule(btn, val) {
+      hireScheduleVal = val;
+      document.querySelectorAll('#hire-step-3 .schedule-preset').forEach(function(b) { b.classList.remove('active-preset'); });
       btn.classList.add('active-preset');
-      // Find the schedule input and set its value
-      const inputs = document.querySelectorAll('#hire-modal input[placeholder*="*"]');
-      if (inputs.length) inputs[0].value = val;
+      document.getElementById('hire-sum-schedule').textContent = val || 'Manual';
+    }
+
+    // ── Step Navigation ──
+    function hireGoStep(step) {
+      if (step === 2 && !hireSelectedRole) return;
+      if (step === 2) hirePopulateConfig();
+      if (step === 3) hirePopulateSummary();
+
+      hireCurrentStep = step;
+      document.querySelectorAll('.hire-step').forEach(function(s) { s.style.display = 'none'; });
+      document.getElementById('hire-step-' + step).style.display = 'block';
+
+      // Update step indicators
+      for (var i = 1; i <= 3; i++) {
+        var dot = document.getElementById('hire-dot-' + i);
+        var label = dot.parentElement.querySelector('span:last-child');
+        dot.classList.remove('active', 'done');
+        if (i === step) {
+          dot.classList.add('active');
+          dot.textContent = String(i);
+          label.style.color = 'var(--t2)';
+        } else if (i < step) {
+          dot.classList.add('done');
+          dot.textContent = '';
+          var checkIcon = document.createElement('span');
+          checkIcon.className = 'mso';
+          checkIcon.style.fontSize = '14px';
+          checkIcon.textContent = 'check';
+          dot.appendChild(checkIcon);
+          label.style.color = 'var(--t2)';
+        } else {
+          dot.textContent = String(i);
+          label.style.color = 'var(--t3)';
+        }
+      }
     }
   </script>
 
