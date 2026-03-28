@@ -8,7 +8,7 @@ defmodule AgentSos.AuditTest do
   describe "AuditLog creation" do
     test "creates an audit log entry with all fields" do
       user = create_user!()
-      org = create_organisation!()
+      org = create_company!()
 
       assert {:ok, log} =
                Audit.log(:create, "User", user.id, user.id, org.id,
@@ -21,7 +21,7 @@ defmodule AgentSos.AuditTest do
       assert log.resource_type == "User"
       assert log.resource_id == user.id
       assert log.actor_id == user.id
-      assert log.organisation_id == org.id
+      assert log.company_id == org.id
       assert log.changes == %{"email" => "new@test.com"}
       assert log.ip_address == "127.0.0.1"
       assert log.user_agent == "Test/1.0"
@@ -36,7 +36,7 @@ defmodule AgentSos.AuditTest do
       assert log.resource_type == "Session"
       assert log.resource_id == "sess-123"
       assert is_nil(log.actor_id)
-      assert is_nil(log.organisation_id)
+      assert is_nil(log.company_id)
       assert log.changes == %{}
       assert log.metadata == %{}
       assert is_nil(log.ip_address)

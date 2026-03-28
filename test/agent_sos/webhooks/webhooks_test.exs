@@ -7,7 +7,7 @@ defmodule AgentSos.WebhooksTest do
 
   describe "OutboundWebhook CRUD" do
     test "creates a webhook" do
-      org = create_organisation!()
+      org = create_company!()
 
       assert {:ok, wh} =
                OutboundWebhook
@@ -15,7 +15,7 @@ defmodule AgentSos.WebhooksTest do
                  url: "https://example.com/webhook",
                  secret: "whsec_test_secret_123",
                  events: ["agent.completed", "billing.updated"],
-                 organisation_id: org.id
+                 company_id: org.id
                })
                |> Ash.create()
 
@@ -25,16 +25,16 @@ defmodule AgentSos.WebhooksTest do
     end
 
     test "requires url and secret" do
-      org = create_organisation!()
+      org = create_company!()
 
       assert {:error, _} =
                OutboundWebhook
-               |> Ash.Changeset.for_create(:create, %{organisation_id: org.id})
+               |> Ash.Changeset.for_create(:create, %{company_id: org.id})
                |> Ash.create()
     end
 
     test "rotates secret" do
-      org = create_organisation!()
+      org = create_company!()
 
       {:ok, wh} =
         OutboundWebhook
@@ -42,7 +42,7 @@ defmodule AgentSos.WebhooksTest do
           url: "https://example.com/wh",
           secret: "old_secret",
           events: [],
-          organisation_id: org.id
+          company_id: org.id
         })
         |> Ash.create()
 
@@ -57,7 +57,7 @@ defmodule AgentSos.WebhooksTest do
 
   describe "WebhookDelivery" do
     test "creates and marks delivery as delivered" do
-      org = create_organisation!()
+      org = create_company!()
 
       {:ok, wh} =
         OutboundWebhook
@@ -65,7 +65,7 @@ defmodule AgentSos.WebhooksTest do
           url: "https://example.com/wh",
           secret: "secret",
           events: ["test"],
-          organisation_id: org.id
+          company_id: org.id
         })
         |> Ash.create()
 
@@ -117,7 +117,7 @@ defmodule AgentSos.WebhooksTest do
 
   describe "edge cases" do
     test "webhook with empty events list" do
-      org = create_organisation!()
+      org = create_company!()
 
       {:ok, wh} =
         OutboundWebhook
@@ -125,7 +125,7 @@ defmodule AgentSos.WebhooksTest do
           url: "https://example.com/wh",
           secret: "secret",
           events: [],
-          organisation_id: org.id
+          company_id: org.id
         })
         |> Ash.create()
 
@@ -133,7 +133,7 @@ defmodule AgentSos.WebhooksTest do
     end
 
     test "webhook payload with nested data" do
-      org = create_organisation!()
+      org = create_company!()
 
       {:ok, wh} =
         OutboundWebhook
@@ -141,7 +141,7 @@ defmodule AgentSos.WebhooksTest do
           url: "https://example.com/wh",
           secret: "s",
           events: ["test"],
-          organisation_id: org.id
+          company_id: org.id
         })
         |> Ash.create()
 

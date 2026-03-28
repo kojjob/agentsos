@@ -9,7 +9,7 @@ defmodule AgentSos.Workers.HeartbeatWorkerTest do
 
   describe "perform/1" do
     setup do
-      org = create_organisation!()
+      org = create_company!()
 
       {:ok, agent} =
         Agent

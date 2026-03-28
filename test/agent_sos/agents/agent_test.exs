@@ -4,7 +4,7 @@ defmodule AgentSos.Agents.AgentTest do
 
   describe "hire" do
     test "creates agent with valid attributes" do
-      org = create_organisation!()
+      org = create_company!()
 
       {:ok, agent} =
         AgentSos.Agents.Agent
@@ -23,7 +23,7 @@ defmodule AgentSos.Agents.AgentTest do
     end
 
     test "requires name and adapter_type" do
-      org = create_organisation!()
+      org = create_company!()
 
       assert {:error, _} =
                AgentSos.Agents.Agent
@@ -32,7 +32,7 @@ defmodule AgentSos.Agents.AgentTest do
     end
 
     test "rejects invalid adapter_type" do
-      org = create_organisation!()
+      org = create_company!()
 
       assert {:error, _} =
                AgentSos.Agents.Agent
@@ -47,7 +47,7 @@ defmodule AgentSos.Agents.AgentTest do
 
   describe "status transitions" do
     setup do
-      org = create_organisation!()
+      org = create_company!()
 
       {:ok, agent} =
         AgentSos.Agents.Agent
@@ -135,7 +135,7 @@ defmodule AgentSos.Agents.AgentTest do
 
   describe "hierarchy" do
     test "agent can have parent (reporting to)" do
-      org = create_organisation!()
+      org = create_company!()
 
       {:ok, ceo} =
         AgentSos.Agents.Agent

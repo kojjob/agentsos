@@ -4,7 +4,7 @@ defmodule AgentSos.Secrets.SecretTest do
 
   describe "create" do
     test "creates secret with valid attributes" do
-      org = create_organisation!()
+      org = create_company!()
 
       {:ok, agent} =
         AgentSos.Agents.Agent
@@ -30,7 +30,7 @@ defmodule AgentSos.Secrets.SecretTest do
     end
 
     test "secret belongs to agent and company" do
-      org = create_organisation!()
+      org = create_company!()
 
       {:ok, agent} =
         AgentSos.Agents.Agent

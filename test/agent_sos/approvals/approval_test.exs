@@ -3,7 +3,7 @@ defmodule AgentSos.Approvals.ApprovalTest do
   import AgentSos.Factory
 
   setup do
-    org = create_organisation!()
+    org = create_company!()
 
     {:ok, agent} =
       AgentSos.Agents.Agent

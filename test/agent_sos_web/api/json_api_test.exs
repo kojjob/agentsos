@@ -10,7 +10,7 @@ defmodule AgentSosWeb.Api.JsonApiTest do
     end
 
     test "returns agents", %{conn: conn} do
-      org = create_organisation!()
+      org = create_company!()
 
       AgentSos.Agents.Agent
       |> Ash.Changeset.for_create(:hire, %{
@@ -29,7 +29,7 @@ defmodule AgentSosWeb.Api.JsonApiTest do
 
   describe "POST /api/v1/agents" do
     test "creates an agent via API", %{conn: conn} do
-      org = create_organisation!()
+      org = create_company!()
 
       payload = %{
         "data" => %{

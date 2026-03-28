@@ -26,7 +26,7 @@ defmodule AgentSos.Runs.HeartbeatRunTest do
 
   describe "create" do
     test "creates a run with valid attributes" do
-      org = create_organisation!()
+      org = create_company!()
       agent = create_agent!(org)
 
       {:ok, run} =
@@ -45,7 +45,7 @@ defmodule AgentSos.Runs.HeartbeatRunTest do
     end
 
     test "default status is :queued" do
-      org = create_organisation!()
+      org = create_company!()
       agent = create_agent!(org)
       run = create_run!(agent, org)
 
@@ -55,7 +55,7 @@ defmodule AgentSos.Runs.HeartbeatRunTest do
 
   describe "start_running" do
     test "queued -> running sets started_at" do
-      org = create_organisation!()
+      org = create_company!()
       agent = create_agent!(org)
       run = create_run!(agent, org)
 
@@ -71,7 +71,7 @@ defmodule AgentSos.Runs.HeartbeatRunTest do
 
   describe "complete" do
     test "running -> completed sets completed_at and accepts metrics" do
-      org = create_organisation!()
+      org = create_company!()
       agent = create_agent!(org)
       run = create_run!(agent, org)
 
@@ -101,7 +101,7 @@ defmodule AgentSos.Runs.HeartbeatRunTest do
 
   describe "fail" do
     test "running -> failed sets error_message" do
-      org = create_organisation!()
+      org = create_company!()
       agent = create_agent!(org)
       run = create_run!(agent, org)
 
@@ -123,7 +123,7 @@ defmodule AgentSos.Runs.HeartbeatRunTest do
 
   describe "invalid transitions" do
     test "queued -> completed should fail" do
-      org = create_organisation!()
+      org = create_company!()
       agent = create_agent!(org)
       run = create_run!(agent, org)
 
@@ -134,7 +134,7 @@ defmodule AgentSos.Runs.HeartbeatRunTest do
     end
 
     test "queued -> failed should fail" do
-      org = create_organisation!()
+      org = create_company!()
       agent = create_agent!(org)
       run = create_run!(agent, org)
 

@@ -101,7 +101,7 @@ defmodule AgentSosWeb.Auth.AuthTest do
       assert render(view) =~ "Create your account"
     end
 
-    test "registration does not create organisation (deferred to onboarding)", %{conn: conn} do
+    test "registration does not create company (deferred to onboarding)", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/auth/register")
 
       view
@@ -123,7 +123,7 @@ defmodule AgentSosWeb.Auth.AuthTest do
       user = hd(users)
 
       memberships =
-        AgentSos.Accounts.Membership
+        AgentSos.Accounts.CompanyMembership
         |> Ash.read!()
         |> Enum.filter(&(&1.user_id == user.id))
 

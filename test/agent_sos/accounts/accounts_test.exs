@@ -1,7 +1,7 @@
 defmodule AgentSos.AccountsTest do
   use AgentSos.DataCase, async: true
 
-  alias AgentSos.Accounts.{User, Organisation, Membership}
+  alias AgentSos.Accounts.{User, Company, CompanyMembership}
   import AgentSos.Factory
 
   describe "User registration" do
@@ -41,10 +41,10 @@ defmodule AgentSos.AccountsTest do
     end
   end
 
-  describe "Organisation" do
+  describe "Company" do
     test "creates org with auto-slug" do
       assert {:ok, org} =
-               Organisation
+               Company
                |> Ash.Changeset.for_create(:create, %{name: "My Cool Company"})
                |> Ash.create()
 
@@ -53,28 +53,28 @@ defmodule AgentSos.AccountsTest do
     end
 
     test "slug uniqueness" do
-      Organisation
+      Company
       |> Ash.Changeset.for_create(:create, %{name: "Unique Org"})
       |> Ash.create!()
 
       assert {:error, _} =
-               Organisation
+               Company
                |> Ash.Changeset.for_create(:create, %{name: "Unique Org"})
                |> Ash.create()
     end
   end
 
-  describe "Membership" do
+  describe "CompanyMembership" do
     test "creates membership linking user and org" do
       user = create_user!()
-      org = create_organisation!()
+      org = create_company!()
 
       assert {:ok, membership} =
-               Membership
+               CompanyMembership
                |> Ash.Changeset.for_create(:create, %{
                  role: :member,
                  user_id: user.id,
-                 organisation_id: org.id
+                 company_id: org.id
                })
                |> Ash.create()
 
@@ -83,23 +83,23 @@ defmodule AgentSos.AccountsTest do
 
     test "prevents duplicate user/org membership" do
       user = create_user!()
-      org = create_organisation!()
+      org = create_company!()
 
       create_membership!(user, org)
 
       assert {:error, _} =
-               Membership
+               CompanyMembership
                |> Ash.Changeset.for_create(:create, %{
                  role: :admin,
                  user_id: user.id,
-                 organisation_id: org.id
+                 company_id: org.id
                })
                |> Ash.create()
     end
 
     test "supports role change" do
       user = create_user!()
-      org = create_organisation!()
+      org = create_company!()
       membership = create_membership!(user, org, :member)
 
       assert {:ok, updated} =

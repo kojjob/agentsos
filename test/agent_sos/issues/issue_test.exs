@@ -15,7 +15,7 @@ defmodule AgentSos.Issues.IssueTest do
 
   describe "create" do
     test "creates issue with valid attributes" do
-      org = create_organisation!()
+      org = create_company!()
 
       {:ok, issue} =
         AgentSos.Issues.Issue
@@ -33,7 +33,7 @@ defmodule AgentSos.Issues.IssueTest do
     end
 
     test "default status is :open and default priority is :medium" do
-      org = create_organisation!()
+      org = create_company!()
       issue = create_issue!(org)
 
       assert issue.status == :open
@@ -41,7 +41,7 @@ defmodule AgentSos.Issues.IssueTest do
     end
 
     test "requires title" do
-      org = create_organisation!()
+      org = create_company!()
 
       assert {:error, _} =
                AgentSos.Issues.Issue
@@ -52,7 +52,7 @@ defmodule AgentSos.Issues.IssueTest do
 
   describe "transition_status" do
     setup do
-      org = create_organisation!()
+      org = create_company!()
       issue = create_issue!(org)
       %{issue: issue, org: org}
     end
@@ -151,7 +151,7 @@ defmodule AgentSos.Issues.IssueTest do
 
   describe "checkout and release" do
     setup do
-      org = create_organisation!()
+      org = create_company!()
       issue = create_issue!(org)
       %{issue: issue, org: org}
     end

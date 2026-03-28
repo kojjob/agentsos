@@ -10,8 +10,8 @@ defmodule AgentSos.ToolingTest do
       assert user.email
     end
 
-    test "create_organisation! returns an org with slug" do
-      org = create_organisation!()
+    test "create_company! returns a company with slug" do
+      org = create_company!()
       assert org.id
       assert org.name
       assert org.slug
@@ -19,7 +19,7 @@ defmodule AgentSos.ToolingTest do
 
     test "create_membership! links user and org" do
       user = create_user!()
-      org = create_organisation!()
+      org = create_company!()
       membership = create_membership!(user, org, :admin)
       assert membership.role == :admin
     end

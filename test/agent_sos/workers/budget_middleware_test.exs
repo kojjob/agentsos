@@ -8,7 +8,7 @@ defmodule AgentSos.Workers.BudgetMiddlewareTest do
 
   describe "check_budget/1" do
     test "returns :ok when budget remaining" do
-      org = create_organisation!()
+      org = create_company!()
 
       {:ok, agent} =
         Agent
@@ -24,7 +24,7 @@ defmodule AgentSos.Workers.BudgetMiddlewareTest do
     end
 
     test "returns error when budget exhausted" do
-      org = create_organisation!()
+      org = create_company!()
 
       {:ok, agent} =
         Agent
@@ -47,7 +47,7 @@ defmodule AgentSos.Workers.BudgetMiddlewareTest do
     end
 
     test "returns :ok when monthly budget is 0 (unlimited)" do
-      org = create_organisation!()
+      org = create_company!()
 
       {:ok, agent} =
         Agent
@@ -65,7 +65,7 @@ defmodule AgentSos.Workers.BudgetMiddlewareTest do
 
   describe "deduct_cost/2" do
     test "atomically deducts cost" do
-      org = create_organisation!()
+      org = create_company!()
 
       {:ok, agent} =
         Agent

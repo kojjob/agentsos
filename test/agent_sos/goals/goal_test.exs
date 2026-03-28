@@ -4,7 +4,7 @@ defmodule AgentSos.Goals.GoalTest do
 
   describe "create" do
     test "creates goal with valid attributes" do
-      org = create_organisation!()
+      org = create_company!()
 
       {:ok, goal} =
         AgentSos.Goals.Goal
@@ -21,7 +21,7 @@ defmodule AgentSos.Goals.GoalTest do
     end
 
     test "requires title" do
-      org = create_organisation!()
+      org = create_company!()
 
       assert {:error, _} =
                AgentSos.Goals.Goal
@@ -32,7 +32,7 @@ defmodule AgentSos.Goals.GoalTest do
 
   describe "hierarchy" do
     test "goal can have parent goal (self-referential)" do
-      org = create_organisation!()
+      org = create_company!()
 
       {:ok, parent} =
         AgentSos.Goals.Goal
@@ -57,7 +57,7 @@ defmodule AgentSos.Goals.GoalTest do
 
   describe "project linked to goal" do
     test "creates project linked to a goal" do
-      org = create_organisation!()
+      org = create_company!()
 
       {:ok, goal} =
         AgentSos.Goals.Goal
