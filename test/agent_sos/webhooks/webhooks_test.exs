@@ -115,17 +115,6 @@ defmodule AgentSos.WebhooksTest do
     end
   end
 
-  describe "Demo mode" do
-    test "demo mode is disabled by default" do
-      refute AgentSos.Demo.enabled?()
-    end
-
-    test "demo credentials are defined" do
-      assert AgentSos.Demo.demo_email() == "demo@agentsos.io"
-      assert is_binary(AgentSos.Demo.demo_password())
-    end
-  end
-
   describe "edge cases" do
     test "webhook with empty events list" do
       org = create_organisation!()

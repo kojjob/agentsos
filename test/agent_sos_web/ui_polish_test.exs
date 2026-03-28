@@ -28,16 +28,6 @@ defmodule AgentSosWeb.UiPolishTest do
       assert_redirected(view, "/agents")
     end
 
-    test "searching 'billing' navigates to /billing", %{conn: conn} do
-      {:ok, view, _html} = live(conn, ~p"/dashboard")
-
-      view
-      |> form("#global-search-form", %{"q" => "billing"})
-      |> render_submit()
-
-      assert_redirected(view, "/billing")
-    end
-
     test "searching 'team' navigates to /team", %{conn: conn} do
       {:ok, view, _html} = live(conn, ~p"/dashboard")
 

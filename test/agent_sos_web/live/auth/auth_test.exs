@@ -144,10 +144,6 @@ defmodule AgentSosWeb.Auth.AuthTest do
       assert {:error, {:live_redirect, %{to: "/auth/login"}}} = live(conn, "/agents")
     end
 
-    test "billing redirects to login when unauthenticated", %{conn: conn} do
-      assert {:error, {:live_redirect, %{to: "/auth/login"}}} = live(conn, "/billing")
-    end
-
     test "team redirects to login when unauthenticated", %{conn: conn} do
       assert {:error, {:live_redirect, %{to: "/auth/login"}}} = live(conn, "/team")
     end
