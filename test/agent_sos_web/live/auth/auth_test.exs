@@ -221,8 +221,8 @@ defmodule AgentSosWeb.Auth.AuthTest do
 
       {:ok, _view, html} = live(conn, "/dashboard")
 
-      # The layout should show the user's name
-      assert html =~ "Ada Lovelace"
+      # The layout should show the user's first name
+      assert html =~ "Ada"
     end
 
     test "sets current_user to nil when no token in session", %{conn: conn} do
