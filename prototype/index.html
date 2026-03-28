@@ -1702,20 +1702,25 @@
       </div>
 
       <!-- Step Indicators -->
-      <div style="padding:20px 28px 0; display:flex; align-items:center; justify-content:center; gap:0;">
-        <div class="hire-step-ind" data-step="1" style="display:flex; align-items:center; gap:8px;">
-          <div class="hire-step-dot active" id="hire-dot-1" style="width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; font-family:'JetBrains Mono',monospace; transition:all 200ms;">1</div>
-          <span style="font-size:12px; font-weight:600; color:var(--t2);">Choose Role</span>
+      <div style="padding:16px 28px 0; display:flex; align-items:center; justify-content:center; gap:0;">
+        <div class="hire-step-ind" data-step="1" style="display:flex; align-items:center; gap:6px;">
+          <div class="hire-step-dot active" id="hire-dot-1" style="width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; font-family:'JetBrains Mono',monospace; transition:all 200ms;">1</div>
+          <span style="font-size:11px; font-weight:600; color:var(--t2);">Role</span>
         </div>
-        <div style="width:40px; height:1px; background:var(--border); margin:0 12px;"></div>
-        <div class="hire-step-ind" data-step="2" style="display:flex; align-items:center; gap:8px;">
-          <div class="hire-step-dot" id="hire-dot-2" style="width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; font-family:'JetBrains Mono',monospace; transition:all 200ms;">2</div>
-          <span style="font-size:12px; font-weight:600; color:var(--t3);">Configure</span>
+        <div style="width:28px; height:1px; background:var(--border); margin:0 8px;"></div>
+        <div class="hire-step-ind" data-step="2" style="display:flex; align-items:center; gap:6px;">
+          <div class="hire-step-dot" id="hire-dot-2" style="width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; font-family:'JetBrains Mono',monospace; transition:all 200ms;">2</div>
+          <span style="font-size:11px; font-weight:600; color:var(--t3);">Model</span>
         </div>
-        <div style="width:40px; height:1px; background:var(--border); margin:0 12px;"></div>
-        <div class="hire-step-ind" data-step="3" style="display:flex; align-items:center; gap:8px;">
-          <div class="hire-step-dot" id="hire-dot-3" style="width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; font-family:'JetBrains Mono',monospace; transition:all 200ms;">3</div>
-          <span style="font-size:12px; font-weight:600; color:var(--t3);">Budget & Review</span>
+        <div style="width:28px; height:1px; background:var(--border); margin:0 8px;"></div>
+        <div class="hire-step-ind" data-step="3" style="display:flex; align-items:center; gap:6px;">
+          <div class="hire-step-dot" id="hire-dot-3" style="width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; font-family:'JetBrains Mono',monospace; transition:all 200ms;">3</div>
+          <span style="font-size:11px; font-weight:600; color:var(--t3);">Plugins</span>
+        </div>
+        <div style="width:28px; height:1px; background:var(--border); margin:0 8px;"></div>
+        <div class="hire-step-ind" data-step="4" style="display:flex; align-items:center; gap:6px;">
+          <div class="hire-step-dot" id="hire-dot-4" style="width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; font-family:'JetBrains Mono',monospace; transition:all 200ms;">4</div>
+          <span style="font-size:11px; font-weight:600; color:var(--t3);">Review</span>
         </div>
       </div>
 
@@ -1843,8 +1848,146 @@
         </div>
       </div>
 
-      <!-- Step 3: Budget & Review -->
+      <!-- Step 3: Plugins, Permissions & Knowledge -->
       <div id="hire-step-3" class="hire-step" style="padding:20px 28px 28px; display:none;">
+
+        <!-- Plugins / Integrations -->
+        <div class="metric-label" style="margin-bottom:10px; margin-top:4px;">Plugins & Integrations</div>
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; margin-bottom:20px;">
+          <label style="display:flex; align-items:center; gap:8px; padding:10px 12px; border-radius:8px; border:1px solid var(--border); cursor:pointer; transition:all 120ms;" onmouseover="this.style.borderColor='var(--border-h)'" onmouseout="this.style.borderColor=this.querySelector('input').checked?'#6366f1':'var(--border)'">
+            <input type="checkbox" style="accent-color:#6366f1;">
+            <span class="mso mso-xs" style="color:#333;">code</span>
+            <div><div style="font-size:12px; font-weight:600;">GitHub</div><div style="font-size:9px; color:var(--t3);">Repos, PRs, issues</div></div>
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; padding:10px 12px; border-radius:8px; border:1px solid var(--border); cursor:pointer; transition:all 120ms;">
+            <input type="checkbox" style="accent-color:#6366f1;">
+            <span class="mso mso-xs" style="color:#f59e0b;">description</span>
+            <div><div style="font-size:12px; font-weight:600;">Notion</div><div style="font-size:9px; color:var(--t3);">Docs, databases</div></div>
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; padding:10px 12px; border-radius:8px; border:1px solid var(--border); cursor:pointer; transition:all 120ms;">
+            <input type="checkbox" style="accent-color:#6366f1;">
+            <span class="mso mso-xs" style="color:#e11d48;">tag</span>
+            <div><div style="font-size:12px; font-weight:600;">Slack</div><div style="font-size:9px; color:var(--t3);">Messaging, alerts</div></div>
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; padding:10px 12px; border-radius:8px; border:1px solid var(--border); cursor:pointer; transition:all 120ms;">
+            <input type="checkbox" style="accent-color:#6366f1;">
+            <span class="mso mso-xs" style="color:#8b5cf6;">bug_report</span>
+            <div><div style="font-size:12px; font-weight:600;">Sentry</div><div style="font-size:9px; color:var(--t3);">Error tracking</div></div>
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; padding:10px 12px; border-radius:8px; border:1px solid var(--border); cursor:pointer; transition:all 120ms;">
+            <input type="checkbox" style="accent-color:#6366f1;">
+            <span class="mso mso-xs" style="color:#3b82f6;">view_kanban</span>
+            <div><div style="font-size:12px; font-weight:600;">Linear</div><div style="font-size:9px; color:var(--t3);">Project tracking</div></div>
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; padding:10px 12px; border-radius:8px; border:1px solid var(--border); cursor:pointer; transition:all 120ms;">
+            <input type="checkbox" style="accent-color:#6366f1;">
+            <span class="mso mso-xs" style="color:var(--t3);">add_circle</span>
+            <div><div style="font-size:12px; font-weight:600;">Custom MCP</div><div style="font-size:9px; color:var(--t3);">Any MCP server</div></div>
+          </label>
+        </div>
+
+        <div style="height:1px; background:var(--border); margin:0 -28px 18px;"></div>
+
+        <!-- Permissions -->
+        <div class="metric-label" style="margin-bottom:10px;">Permissions</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:20px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--s2); border-radius:8px;">
+            <div style="display:flex; align-items:center; gap:8px;"><span class="mso mso-xs" style="color:var(--t3);">visibility</span><span style="font-size:12px; font-weight:600;">Read code</span></div>
+            <div style="width:36px; height:20px; border-radius:10px; background:#22c55e; position:relative; cursor:pointer;"><div style="width:16px; height:16px; border-radius:50%; background:white; position:absolute; right:2px; top:2px; box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div></div>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--s2); border-radius:8px;">
+            <div style="display:flex; align-items:center; gap:8px;"><span class="mso mso-xs" style="color:var(--t3);">edit</span><span style="font-size:12px; font-weight:600;">Write code</span></div>
+            <div style="width:36px; height:20px; border-radius:10px; background:#22c55e; position:relative; cursor:pointer;"><div style="width:16px; height:16px; border-radius:50%; background:white; position:absolute; right:2px; top:2px; box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div></div>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--s2); border-radius:8px;">
+            <div style="display:flex; align-items:center; gap:8px;"><span class="mso mso-xs" style="color:var(--t3);">terminal</span><span style="font-size:12px; font-weight:600;">Execute commands</span></div>
+            <div style="width:36px; height:20px; border-radius:10px; background:#22c55e; position:relative; cursor:pointer;"><div style="width:16px; height:16px; border-radius:50%; background:white; position:absolute; right:2px; top:2px; box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div></div>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--s2); border-radius:8px;">
+            <div style="display:flex; align-items:center; gap:8px;"><span class="mso mso-xs" style="color:var(--t3);">rocket_launch</span><span style="font-size:12px; font-weight:600;">Deploy</span></div>
+            <div style="width:36px; height:20px; border-radius:10px; background:var(--s3); position:relative; cursor:pointer;"><div style="width:16px; height:16px; border-radius:50%; background:white; position:absolute; right:18px; top:2px; box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div></div>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--s2); border-radius:8px;">
+            <div style="display:flex; align-items:center; gap:8px;"><span class="mso mso-xs" style="color:var(--t3);">merge</span><span style="font-size:12px; font-weight:600;">Merge to main</span></div>
+            <div style="width:36px; height:20px; border-radius:10px; background:var(--s3); position:relative; cursor:pointer;"><div style="width:16px; height:16px; border-radius:50%; background:white; position:absolute; right:18px; top:2px; box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div></div>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--s2); border-radius:8px;">
+            <div style="display:flex; align-items:center; gap:8px;"><span class="mso mso-xs" style="color:var(--t3);">key</span><span style="font-size:12px; font-weight:600;">Access secrets</span></div>
+            <div style="width:36px; height:20px; border-radius:10px; background:#22c55e; position:relative; cursor:pointer;"><div style="width:16px; height:16px; border-radius:50%; background:white; position:absolute; right:2px; top:2px; box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div></div>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--s2); border-radius:8px;">
+            <div style="display:flex; align-items:center; gap:8px;"><span class="mso mso-xs" style="color:var(--t3);">group</span><span style="font-size:12px; font-weight:600;">Manage agents</span></div>
+            <div style="width:36px; height:20px; border-radius:10px; background:var(--s3); position:relative; cursor:pointer;"><div style="width:16px; height:16px; border-radius:50%; background:white; position:absolute; right:18px; top:2px; box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div></div>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--s2); border-radius:8px;">
+            <div style="display:flex; align-items:center; gap:8px;"><span class="mso mso-xs" style="color:var(--t3);">payments</span><span style="font-size:12px; font-weight:600;">Spend autonomously</span></div>
+            <div style="width:36px; height:20px; border-radius:10px; background:var(--s3); position:relative; cursor:pointer;"><div style="width:16px; height:16px; border-radius:50%; background:white; position:absolute; right:18px; top:2px; box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div></div>
+          </div>
+        </div>
+
+        <div style="height:1px; background:var(--border); margin:0 -28px 18px;"></div>
+
+        <!-- Knowledge Base -->
+        <div class="metric-label" style="margin-bottom:10px;">Knowledge Base</div>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
+          <div>
+            <label style="font-size:12px; font-weight:600; color:var(--t2); display:block; margin-bottom:4px;">Project Context</label>
+            <textarea class="input" style="width:100%; min-height:60px; resize:vertical; font-size:12px;" placeholder="Paste project docs, README content, or codebase context the agent should always have..."></textarea>
+            <p style="font-size:10px; color:var(--t3); margin-top:3px;">Injected into every run as background context</p>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div>
+              <label style="font-size:12px; font-weight:600; color:var(--t2); display:block; margin-bottom:4px;">Codebase Paths</label>
+              <input class="input" style="width:100%; font-size:12px;" placeholder="src/, lib/, docs/">
+              <p style="font-size:10px; color:var(--t3); margin-top:3px;">Directories the agent focuses on</p>
+            </div>
+            <div>
+              <label style="font-size:12px; font-weight:600; color:var(--t2); display:block; margin-bottom:4px;">Reference URLs</label>
+              <input class="input" style="width:100%; font-size:12px;" placeholder="https://docs.example.com">
+              <p style="font-size:10px; color:var(--t3); margin-top:3px;">External docs for RAG context</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:1px; background:var(--border); margin:0 -28px 18px;"></div>
+
+        <!-- Communication -->
+        <div class="metric-label" style="margin-bottom:10px;">Communication & Reporting</div>
+        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--s2); border-radius:8px;">
+            <div><div style="font-size:12px; font-weight:600;">Notify on completion</div><div style="font-size:10px; color:var(--t3);">Send alert when heartbeat finishes successfully</div></div>
+            <div style="width:36px; height:20px; border-radius:10px; background:#22c55e; position:relative; cursor:pointer;"><div style="width:16px; height:16px; border-radius:50%; background:white; position:absolute; right:2px; top:2px; box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div></div>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--s2); border-radius:8px;">
+            <div><div style="font-size:12px; font-weight:600;">Notify on error</div><div style="font-size:10px; color:var(--t3);">Immediate alert on heartbeat failure</div></div>
+            <div style="width:36px; height:20px; border-radius:10px; background:#22c55e; position:relative; cursor:pointer;"><div style="width:16px; height:16px; border-radius:50%; background:white; position:absolute; right:2px; top:2px; box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div></div>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--s2); border-radius:8px;">
+            <div><div style="font-size:12px; font-weight:600;">Can @mention other agents</div><div style="font-size:10px; color:var(--t3);">Allow cross-agent collaboration via mentions</div></div>
+            <div style="width:36px; height:20px; border-radius:10px; background:#22c55e; position:relative; cursor:pointer;"><div style="width:16px; height:16px; border-radius:50%; background:white; position:absolute; right:2px; top:2px; box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div></div>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--s2); border-radius:8px;">
+            <div><div style="font-size:12px; font-weight:600;">Budget threshold alert</div><div style="font-size:10px; color:var(--t3);">Warn when reaching % of monthly budget</div></div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <input class="input" type="number" value="80" min="50" max="100" style="width:60px; text-align:center; font-size:12px; font-weight:600; padding:4px 8px;">
+              <span style="font-size:11px; color:var(--t3);">%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div style="display:flex; justify-content:space-between; margin-top:4px;">
+          <button class="btn btn-ghost" onclick="hireGoStep(2)">
+            <span class="mso mso-xs" style="margin-right:2px;">arrow_back</span> Back
+          </button>
+          <button class="btn btn-primary" onclick="hireGoStep(4)" style="padding:9px 20px;">
+            Next <span class="mso mso-xs" style="margin-left:2px;">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 4: Budget & Review -->
+      <div id="hire-step-4" class="hire-step" style="padding:20px 28px 28px; display:none;">
         <!-- Budget -->
         <div class="metric-label" style="margin-bottom:12px; margin-top:4px;">Budget</div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
@@ -1890,7 +2033,7 @@
 
         <!-- Navigation -->
         <div style="display:flex; align-items:center; justify-content:space-between;">
-          <button class="btn btn-ghost" onclick="hireGoStep(2)">
+          <button class="btn btn-ghost" onclick="hireGoStep(3)">
             <span class="mso mso-xs" style="margin-right:2px;">arrow_back</span> Back
           </button>
           <button class="btn btn-primary" onclick="closeHireModal()" style="padding:9px 20px;">
@@ -1968,7 +2111,16 @@
       data: { name: "Data Analyst", icon: "analytics", color: "#06b6d4", provider: "Google", model: "gemini-2.5-flash", cost_run: "$0.01", cost_month: "$120", skills: ["sql","python","analytics","visualization"], tools: ["file_read","web_search"], temp: 0.3, max_tokens: 4096, budget: 120, prompt: "You are a data analyst. Query data, generate insights, and create visualizations." },
       writer: { name: "Writer", icon: "edit_note", color: "#ec4899", provider: "Anthropic", model: "claude-sonnet-4-6", cost_run: "$0.04", cost_month: "$150", skills: ["writing","copywriting","documentation"], tools: ["file_read","file_write"], temp: 0.8, max_tokens: 4096, budget: 150, prompt: "You are a skilled writer. Create compelling content, documentation, and copy." },
       researcher: { name: "Researcher", icon: "science", color: "#8b5cf6", provider: "Anthropic", model: "claude-opus-4-6", cost_run: "$0.20", cost_month: "$400", skills: ["research","analysis","synthesis"], tools: ["web_search","file_read"], temp: 0.5, max_tokens: 8192, budget: 400, prompt: "You are a research analyst. Investigate topics, synthesize findings, and produce thorough reports." },
-      security: { name: "Security", icon: "security", color: "#dc2626", provider: "OpenAI", model: "gpt-4o", cost_run: "$0.05", cost_month: "$200", skills: ["security","audit","compliance","owasp"], tools: ["terminal","file_read"], temp: 0.2, max_tokens: 4096, budget: 200, prompt: "You are a security engineer. Audit code for vulnerabilities, ensure compliance, and harden systems." }
+      security: { name: "Security", icon: "security", color: "#dc2626", provider: "OpenAI", model: "gpt-4o", cost_run: "$0.05", cost_month: "$200", skills: ["security","audit","compliance","owasp"], tools: ["terminal","file_read"], temp: 0.2, max_tokens: 4096, budget: 200, prompt: "You are a security engineer. Audit code for vulnerabilities, ensure compliance, and harden systems." },
+      marketing: { name: "Marketing", icon: "campaign", color: "#f97316", provider: "Anthropic", model: "claude-sonnet-4-6", cost_run: "$0.05", cost_month: "$180", skills: ["marketing","seo","social-media","campaigns","analytics"], tools: ["web_search","file_write"], temp: 0.7, max_tokens: 4096, budget: 180, prompt: "You are a marketing specialist. Plan campaigns, analyze performance, create marketing content, and optimize for growth." },
+      sales: { name: "Sales / BD", icon: "handshake", color: "#14b8a6", provider: "Anthropic", model: "claude-sonnet-4-6", cost_run: "$0.05", cost_month: "$200", skills: ["sales","lead-generation","crm","outreach","negotiation"], tools: ["web_search","file_write"], temp: 0.7, max_tokens: 4096, budget: 200, prompt: "You are a sales and business development agent. Generate leads, craft outreach messages, manage pipelines, and close deals." },
+      accountant: { name: "Accountant", icon: "account_balance", color: "#0ea5e9", provider: "Google", model: "gemini-2.5-flash", cost_run: "$0.01", cost_month: "$100", skills: ["accounting","finance","bookkeeping","tax","invoicing"], tools: ["file_read","file_write"], temp: 0.2, max_tokens: 4096, budget: 100, prompt: "You are an accountant. Handle bookkeeping, generate financial reports, track expenses, manage invoices, and ensure tax compliance." },
+      lawyer: { name: "Legal / Compliance", icon: "gavel", color: "#6366f1", provider: "Anthropic", model: "claude-opus-4-6", cost_run: "$0.15", cost_month: "$350", skills: ["legal","contracts","compliance","privacy","terms-of-service"], tools: ["file_read","web_search"], temp: 0.3, max_tokens: 8192, budget: 350, prompt: "You are a legal and compliance advisor. Review contracts, draft terms of service, ensure regulatory compliance, and assess legal risks. Always note you are AI and not a licensed attorney." },
+      hr: { name: "HR / People", icon: "diversity_3", color: "#ec4899", provider: "OpenAI", model: "gpt-4o-mini", cost_run: "$0.01", cost_month: "$80", skills: ["hr","recruiting","onboarding","culture","policies"], tools: ["file_read","file_write"], temp: 0.6, max_tokens: 4096, budget: 80, prompt: "You are an HR and people operations agent. Draft job descriptions, manage onboarding workflows, create policies, and maintain company culture docs." },
+      teacher: { name: "Trainer / Coach", icon: "school", color: "#8b5cf6", provider: "Anthropic", model: "claude-sonnet-4-6", cost_run: "$0.04", cost_month: "$120", skills: ["training","documentation","tutorials","onboarding","knowledge-base"], tools: ["file_read","file_write","web_search"], temp: 0.6, max_tokens: 4096, budget: 120, prompt: "You are a trainer and knowledge coach. Create learning materials, write tutorials, build onboarding guides, and maintain the team knowledge base." },
+      pm: { name: "Product Manager", icon: "inventory_2", color: "#f59e0b", provider: "Anthropic", model: "claude-sonnet-4-6", cost_run: "$0.05", cost_month: "$200", skills: ["product-management","roadmap","user-research","prioritization","specs"], tools: ["file_read","file_write","web_search"], temp: 0.5, max_tokens: 4096, budget: 200, prompt: "You are a product manager. Define product roadmaps, write specs, prioritize features, conduct user research, and coordinate between teams." },
+      designer: { name: "Designer", icon: "palette", color: "#e11d48", provider: "Anthropic", model: "claude-sonnet-4-6", cost_run: "$0.05", cost_month: "$180", skills: ["ui-design","ux","wireframing","design-systems","accessibility"], tools: ["file_read","file_write"], temp: 0.7, max_tokens: 4096, budget: 180, prompt: "You are a UI/UX designer. Create wireframes, design components, maintain design systems, and ensure excellent user experience." },
+      support: { name: "Customer Support", icon: "support_agent", color: "#22c55e", provider: "OpenAI", model: "gpt-4o-mini", cost_run: "$0.01", cost_month: "$60", skills: ["customer-support","troubleshooting","documentation","ticketing"], tools: ["file_read","web_search"], temp: 0.5, max_tokens: 2048, budget: 60, prompt: "You are a customer support agent. Answer questions, troubleshoot issues, maintain FAQ docs, and escalate complex problems." }
     };
 
     let hireCurrentStep = 1;
@@ -2177,14 +2329,14 @@
     function hireGoStep(step) {
       if (step === 2 && !hireSelectedRole) return;
       if (step === 2) hirePopulateConfig();
-      if (step === 3) hirePopulateSummary();
+      if (step === 4) hirePopulateSummary();
 
       hireCurrentStep = step;
       document.querySelectorAll('.hire-step').forEach(function(s) { s.style.display = 'none'; });
       document.getElementById('hire-step-' + step).style.display = 'block';
 
       // Update step indicators
-      for (var i = 1; i <= 3; i++) {
+      for (var i = 1; i <= 4; i++) {
         var dot = document.getElementById('hire-dot-' + i);
         var label = dot.parentElement.querySelector('span:last-child');
         dot.classList.remove('active', 'done');
