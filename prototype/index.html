@@ -1,0 +1,2003 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentSOS — Command Center</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            canvas: 'var(--canvas)',
+            surface: { 1: 'var(--s1)', 2: 'var(--s2)', 3: 'var(--s3)' },
+            border: { DEFAULT: 'var(--border)', hover: 'var(--border-h)' },
+            txt: { 1: 'var(--t1)', 2: 'var(--t2)', 3: 'var(--t3)' },
+            accent: { DEFAULT: '#6366f1', hover: '#4f46e5', light: '#818cf8', subtle: 'var(--accent-s)', text: 'var(--accent-t)' },
+          },
+          fontFamily: {
+            mono: ['JetBrains Mono', 'monospace'],
+            sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    /* ── Design Tokens ── */
+    :root {
+      --canvas: #ffffff; --s1: #fafafa; --s2: #f4f4f5; --s3: #e4e4e7;
+      --border: #e4e4e7; --border-h: #d4d4d8;
+      --t1: #09090b; --t2: #52525b; --t3: #a1a1aa;
+      --accent-s: rgba(99,102,241,0.06); --accent-t: #4338ca;
+    }
+    html.dark {
+      --canvas: #09090b; --s1: #111113; --s2: #1a1a1f; --s3: #27272a;
+      --border: #1e1e23; --border-h: #2e2e35;
+      --t1: #fafafa; --t2: #a1a1aa; --t3: #52525b;
+      --accent-s: rgba(99,102,241,0.1); --accent-t: #a5b4fc;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { background: var(--canvas); color: var(--t1); font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 14px; line-height: 1.6; }
+    body { display: flex; min-height: 100vh; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-h); border-radius: 10px; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 232px; background: var(--s1); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh;
+      flex-shrink: 0; overflow-y: auto; z-index: 30; transition: width 200ms ease;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px; padding: 7px 12px;
+      border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--t2);
+      cursor: pointer; transition: all 120ms; text-decoration: none; position: relative;
+      white-space: nowrap; overflow: hidden;
+    }
+    .nav-item:hover { color: var(--t1); background: var(--s2); }
+    .nav-item.active { color: var(--accent-t); background: var(--accent-s); font-weight: 600; }
+    .nav-item.active::before {
+      content: ''; position: absolute; left: -8px; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 16px; background: #6366f1; border-radius: 0 3px 3px 0;
+    }
+    .nav-item .nav-text { transition: opacity 200ms; }
+    .nav-item .nav-badge { transition: opacity 200ms; }
+    .nav-label {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em; color: var(--t3);
+      padding: 20px 12px 6px; user-select: none; transition: opacity 200ms; white-space: nowrap;
+    }
+    .nav-divider { height: 1px; background: var(--border); margin: 4px 12px; }
+
+    /* Sidebar tooltip (visible in collapsed mode) */
+    .nav-item .nav-tooltip {
+      display: none; position: absolute; left: 100%; top: 50%; transform: translateY(-50%);
+      margin-left: 12px; padding: 5px 10px; border-radius: 6px; background: var(--s3);
+      color: var(--t1); font-size: 12px; font-weight: 600; white-space: nowrap; z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15); pointer-events: none;
+    }
+    .nav-item .nav-tooltip::before {
+      content: ''; position: absolute; left: -4px; top: 50%; transform: translateY(-50%) rotate(45deg);
+      width: 8px; height: 8px; background: var(--s3);
+    }
+
+    /* Logo text */
+    .logo-text { transition: opacity 200ms; }
+    /* User info */
+    .user-info { transition: opacity 200ms; overflow: hidden; }
+    .user-expand { transition: opacity 200ms; }
+
+    /* ── Tablet: icon-only sidebar (768–1024px) ── */
+    @media (max-width: 1024px) and (min-width: 769px) {
+      .sidebar { width: 60px; align-items: center; overflow: visible; }
+      .sidebar .logo-text { opacity: 0; width: 0; overflow: hidden; }
+      .sidebar .nav-label { opacity: 0; height: 0; padding: 0; margin: 4px 0; overflow: hidden; }
+      .sidebar .nav-item { justify-content: center; padding: 9px; width: 42px; gap: 0; }
+      .sidebar .nav-item .nav-text { opacity: 0; width: 0; position: absolute; }
+      .sidebar .nav-item .nav-badge { opacity: 0; width: 0; position: absolute; }
+      .sidebar .nav-item.active::before { left: -6px; }
+      .sidebar .nav-divider { margin: 4px 6px; }
+      .sidebar .user-info { opacity: 0; width: 0; position: absolute; }
+      .sidebar .user-expand { opacity: 0; width: 0; position: absolute; }
+      .sidebar .nav-item:hover .nav-tooltip { display: block; }
+      /* Logo padding */
+      .sidebar .sidebar-logo { padding: 14px 0 8px; justify-content: center; }
+      /* User section */
+      .sidebar .sidebar-user .nav-item { justify-content: center; width: 42px; }
+    }
+
+    /* ── Mobile: hidden sidebar + hamburger ── */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed; left: 0; top: 0; height: 100vh; width: 260px;
+        transform: translateX(-100%); transition: transform 250ms ease; z-index: 60;
+        box-shadow: none;
+      }
+      .sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.3); }
+      .mobile-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 55;
+        opacity: 0; pointer-events: none; transition: opacity 250ms;
+      }
+      .mobile-overlay.open { opacity: 1; pointer-events: auto; }
+      .mobile-menu-btn { display: flex !important; }
+      .topbar { padding: 0 16px; }
+      main { padding: 16px 18px !important; }
+    }
+    @media (min-width: 769px) {
+      .mobile-overlay { display: none !important; }
+      .mobile-menu-btn { display: none !important; }
+    }
+
+    /* ── User dropdown/up menu ── */
+    .user-dropdown {
+      position: absolute; bottom: 100%; left: 8px; right: 8px; margin-bottom: 6px;
+      background: var(--s1); border: 1px solid var(--border); border-radius: 10px;
+      padding: 4px; opacity: 0; visibility: hidden; transform: translateY(4px);
+      transition: all 150ms; z-index: 50; box-shadow: 0 -8px 24px rgba(0,0,0,0.15);
+    }
+    .user-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
+    .user-dropdown-item {
+      display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 7px;
+      font-size: 12px; font-weight: 500; color: var(--t2); cursor: pointer; transition: all 120ms;
+      text-decoration: none; white-space: nowrap;
+    }
+    .user-dropdown-item:hover { color: var(--t1); background: var(--s2); }
+    .user-dropdown-item.danger { color: #ef4444; }
+    .user-dropdown-item.danger:hover { background: rgba(239,68,68,0.06); }
+    .user-dropdown-divider { height: 1px; background: var(--border); margin: 4px 8px; }
+
+    /* Tablet dropdown adjustments */
+    @media (max-width: 1024px) and (min-width: 769px) {
+      .user-dropdown { left: 4px; right: auto; width: 200px; }
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      height: 52px; border-bottom: 1px solid var(--border); display: flex;
+      align-items: center; padding: 0 24px; position: sticky; top: 0; z-index: 20;
+      background: color-mix(in srgb, var(--canvas) 80%, transparent);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--s1); border: 1px solid var(--border); border-radius: 10px;
+      padding: 20px; transition: all 180ms ease;
+    }
+    .card-hover:hover { border-color: var(--border-h); box-shadow: 0 2px 12px -2px rgba(0,0,0,0.08); }
+    html.dark .card-hover:hover { box-shadow: 0 2px 12px -2px rgba(0,0,0,0.4); }
+    .card-interactive { cursor: pointer; }
+    .card-interactive:hover { border-color: #6366f1; box-shadow: 0 0 0 1px rgba(99,102,241,0.15); }
+
+    /* ── Metric ── */
+    .metric-value { font-family: 'Plus Jakarta Sans'; font-size: 32px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
+    .metric-label { font-family: 'Plus Jakarta Sans'; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--t3); margin-bottom: 10px; }
+    .metric-sub { font-size: 12px; color: var(--t3); margin-top: 8px; }
+
+    /* ── Status ── */
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-idle { background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.15); }
+    .dot-running { background: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); animation: pulse-dot 2s ease-in-out infinite; }
+    .dot-error { background: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.15); }
+    .dot-pending { background: #a855f7; box-shadow: 0 0 0 3px rgba(168,85,247,0.15); }
+    .dot-paused { background: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.15); }
+
+    @keyframes pulse-dot { 0%,100% { opacity:1; } 50% { opacity:.4; } }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px;
+      border-radius: 5px; font-family: 'Plus Jakarta Sans'; font-size: 10px;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
+    }
+    .badge-idle { background: rgba(34,197,94,0.08); color: #22c55e; }
+    .badge-running { background: rgba(59,130,246,0.08); color: #3b82f6; }
+    .badge-error { background: rgba(239,68,68,0.08); color: #ef4444; }
+    .badge-completed { background: rgba(16,185,129,0.08); color: #10b981; }
+    .badge-failed { background: rgba(239,68,68,0.08); color: #ef4444; }
+    .badge-queued { background: rgba(161,161,170,0.08); color: #a1a1aa; }
+    .badge-pending { background: rgba(168,85,247,0.08); color: #a855f7; }
+    .badge-open { background: rgba(59,130,246,0.08); color: #3b82f6; }
+    .badge-approved { background: rgba(34,197,94,0.08); color: #22c55e; }
+    .badge-rejected { background: rgba(239,68,68,0.08); color: #ef4444; }
+
+    /* ── Budget Bar ── */
+    .budget-track { height: 4px; border-radius: 2px; background: var(--s2); overflow: hidden; }
+    .budget-fill { height: 100%; border-radius: 2px; transition: width 500ms ease; }
+    .budget-safe .budget-fill { background: linear-gradient(90deg, #22c55e, #16a34a); }
+    .budget-warn .budget-fill { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .budget-crit .budget-fill { background: linear-gradient(90deg, #ef4444, #dc2626); }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px;
+      border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: all 120ms; border: none; text-decoration: none;
+    }
+    .btn-primary { background: #6366f1; color: #fff; }
+    .btn-primary:hover { background: #4f46e5; box-shadow: 0 2px 8px rgba(99,102,241,0.35); }
+    .btn-ghost { background: transparent; color: var(--t2); border: 1px solid var(--border); }
+    .btn-ghost:hover { color: var(--t1); border-color: var(--border-h); background: var(--s2); }
+    .btn-danger { background: rgba(239,68,68,0.08); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); }
+    .btn-danger:hover { background: rgba(239,68,68,0.15); }
+    .btn-success { background: rgba(34,197,94,0.08); color: #22c55e; border: 1px solid rgba(34,197,94,0.2); }
+    .btn-success:hover { background: rgba(34,197,94,0.15); }
+
+    /* ── Table ── */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th {
+      text-align: left; padding: 10px 14px; font-family: 'Plus Jakarta Sans'; font-size: 11px;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--t3);
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid var(--border); }
+    .data-table tr:hover td { background: var(--s2); }
+    .data-table tr { cursor: pointer; transition: background 100ms; }
+
+    /* ── Input ── */
+    .input {
+      background: var(--s2); border: 1px solid var(--border); border-radius: 7px;
+      color: var(--t1); padding: 8px 12px; font-size: 13px; outline: none; transition: all 120ms;
+    }
+    .input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+    .input::placeholder { color: var(--t3); }
+
+    /* ── Page Tabs ── */
+    .page-tab {
+      padding: 6px 14px; border-radius: 6px; font-family: 'Plus Jakarta Sans'; font-size: 12px;
+      font-weight: 600; color: var(--t3); cursor: pointer; transition: all 120ms;
+    }
+    .page-tab:hover { color: var(--t2); background: var(--s2); }
+    .page-tab.active { color: var(--accent-t); background: var(--accent-s); }
+
+    /* ── Animations ── */
+    @keyframes fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-in { animation: fade-up 400ms ease forwards; opacity: 0; }
+    .delay-1 { animation-delay: 50ms; } .delay-2 { animation-delay: 100ms; }
+    .delay-3 { animation-delay: 150ms; } .delay-4 { animation-delay: 200ms; }
+    .delay-5 { animation-delay: 250ms; } .delay-6 { animation-delay: 300ms; }
+
+    /* ── Sparkline ── */
+    .sparkline { display: flex; align-items: flex-end; gap: 2px; height: 32px; }
+    .spark-bar { flex: 1; border-radius: 2px 2px 0 0; transition: height 300ms ease; min-width: 3px; }
+
+    /* ── Live indicator ── */
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: pulse-dot 2s ease-in-out infinite; }
+
+    /* ── Agent card shine effect ── */
+    .card-interactive::after {
+      content: ''; position: absolute; inset: 0; border-radius: 10px;
+      background: linear-gradient(135deg, transparent 40%, rgba(99,102,241,0.03) 50%, transparent 60%);
+      opacity: 0; transition: opacity 300ms;
+    }
+    .card-interactive:hover::after { opacity: 1; }
+    .card-interactive { position: relative; overflow: hidden; }
+
+    /* ── Page transitions ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── Material Icons sizing ── */
+    .mso { font-family: 'Material Symbols Outlined'; font-size: 20px; font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20; }
+    .mso-fill { font-variation-settings: 'FILL' 1; }
+    .mso-sm { font-size: 16px; }
+    .mso-xs { font-size: 14px; }
+
+    /* ── Misc ── */
+    .text-mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+    .tabular { font-variant-numeric: tabular-nums; }
+    .text-data { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+    ::selection { background: rgba(99,102,241,0.25); }
+
+    /* ── Priority stripes ── */
+    /* ── Org action buttons ── */
+    .org-action {
+      width: 26px; height: 26px; border-radius: 5px; border: 1px solid var(--border);
+      background: none; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--t3); transition: all 120ms; opacity: 0;
+    }
+    .card:hover .org-action { opacity: 1; }
+    .org-action:hover { color: var(--t1); background: var(--s2); border-color: var(--border-h); }
+    .org-action-danger:hover { color: #ef4444; background: rgba(239,68,68,0.06); border-color: rgba(239,68,68,0.2); }
+
+    .priority-critical { border-left: 3px solid #ef4444; }
+    .priority-high { border-left: 3px solid #f59e0b; }
+    .priority-medium { border-left: 3px solid #3b82f6; }
+    .priority-low { border-left: 3px solid #a1a1aa; }
+  </style>
+</head>
+<body>
+
+  <!-- Mobile overlay -->
+  <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileNav()"></div>
+
+  <!-- ═══════ SIDEBAR ═══════ -->
+  <aside class="sidebar" id="sidebar">
+    <!-- Logo -->
+    <div class="sidebar-logo" style="padding: 18px 16px 10px; display: flex; align-items: center; gap: 10px;">
+      <div style="width: 28px; height: 28px; border-radius: 7px; background: linear-gradient(135deg, #6366f1, #4f46e5); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(99,102,241,0.3); flex-shrink: 0;">
+        <span class="mso mso-fill" style="font-size: 15px; color: #fff;">hub</span>
+      </div>
+      <div class="logo-text">
+        <div style="font-size: 15px; font-weight: 800; letter-spacing: -0.03em;">AgentSOS</div>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav style="flex: 1; padding: 0 8px; display: flex; flex-direction: column; gap: 1px;">
+      <div class="nav-label">Core</div>
+      <a class="nav-item active" onclick="showPage('dashboard')">
+        <span class="mso mso-sm">dashboard</span>
+        <span class="nav-text">Dashboard</span>
+        <span class="nav-tooltip">Dashboard</span>
+      </a>
+      <a class="nav-item" onclick="showPage('agents')">
+        <span class="mso mso-sm">smart_toy</span>
+        <span class="nav-text">Agents</span>
+        <span class="nav-tooltip">Agents</span>
+      </a>
+      <a class="nav-item" onclick="showPage('org-chart')">
+        <span class="mso mso-sm">account_tree</span>
+        <span class="nav-text">Org Chart</span>
+        <span class="nav-tooltip">Org Chart</span>
+      </a>
+      <a class="nav-item" onclick="showPage('issues')">
+        <span class="mso mso-sm">task_alt</span>
+        <span class="nav-text">Issues</span>
+        <span class="nav-tooltip">Issues</span>
+      </a>
+      <a class="nav-item" onclick="showPage('approvals')">
+        <span class="mso mso-sm">approval</span>
+        <span class="nav-text">Approvals</span>
+        <span class="nav-badge badge badge-pending" style="padding: 1px 5px; font-size: 9px; margin-left: auto;">3</span>
+        <span class="nav-tooltip">Approvals (3)</span>
+      </a>
+
+      <div class="nav-divider"></div>
+      <div class="nav-label">Analytics</div>
+      <a class="nav-item" onclick="showPage('costs')">
+        <span class="mso mso-sm">payments</span>
+        <span class="nav-text">Costs</span>
+        <span class="nav-tooltip">Costs</span>
+      </a>
+      <a class="nav-item" onclick="showPage('activity')">
+        <span class="mso mso-sm">timeline</span>
+        <span class="nav-text">Activity</span>
+        <span class="nav-tooltip">Activity</span>
+      </a>
+
+      <div class="nav-divider"></div>
+      <div class="nav-label">System</div>
+      <a class="nav-item" onclick="showPage('secrets')">
+        <span class="mso mso-sm">key</span>
+        <span class="nav-text">Secrets</span>
+        <span class="nav-tooltip">Secrets</span>
+      </a>
+      <a class="nav-item" onclick="showPage('settings')">
+        <span class="mso mso-sm">settings</span>
+        <span class="nav-text">Settings</span>
+        <span class="nav-tooltip">Settings</span>
+      </a>
+    </nav>
+
+    <!-- User -->
+    <div class="sidebar-user" style="padding: 8px; border-top: 1px solid var(--border); position: relative;">
+      <!-- User dropdown (pops UP) -->
+      <div class="user-dropdown" id="user-dropdown">
+        <div style="padding: 10px 12px 8px; border-bottom: 1px solid var(--border); margin-bottom: 4px;">
+          <div style="font-size: 13px; font-weight: 700; color: var(--t1);">Kojo Kwakye</div>
+          <div class="text-mono" style="font-size: 11px; color: var(--t3);">kojo@agentsos.io</div>
+          <div style="margin-top: 6px;">
+            <span class="badge" style="background: rgba(99,102,241,0.08); color: #6366f1; font-size: 9px;">OWNER</span>
+          </div>
+        </div>
+        <a class="user-dropdown-item" onclick="showPage('settings')">
+          <span class="mso mso-xs">person</span> Profile & Account
+        </a>
+        <a class="user-dropdown-item" onclick="showPage('settings')">
+          <span class="mso mso-xs">settings</span> Settings
+        </a>
+        <a class="user-dropdown-item">
+          <span class="mso mso-xs">help</span> Help & Docs
+        </a>
+        <a class="user-dropdown-item">
+          <span class="mso mso-xs">keyboard</span> Keyboard Shortcuts
+        </a>
+        <div class="user-dropdown-divider"></div>
+        <a class="user-dropdown-item danger">
+          <span class="mso mso-xs">logout</span> Sign Out
+        </a>
+      </div>
+
+      <div class="nav-item" style="padding: 8px 12px;" onclick="toggleUserDropdown(event)">
+        <div style="width: 28px; height: 28px; border-radius: 7px; background: var(--accent-s); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono'; font-size: 10px; font-weight: 700; color: var(--accent-t); flex-shrink: 0;">KK</div>
+        <div class="user-info" style="flex: 1;">
+          <div style="font-size: 12px; font-weight: 600; color: var(--t1);">Kojo</div>
+          <div style="font-size: 10px; color: var(--t3);">Owner</div>
+        </div>
+        <span class="mso mso-xs user-expand" style="color: var(--t3);">unfold_more</span>
+        <span class="nav-tooltip">Kojo Kwakye</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════ MAIN ═══════ -->
+  <div style="flex: 1; display: flex; flex-direction: column; min-width: 0;">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="mobile-menu-btn" onclick="openMobileNav()" style="display:none; align-items:center; justify-content:center; width:34px; height:34px; border-radius:7px; border:1px solid var(--border); background:none; color:var(--t2); cursor:pointer; margin-right:10px; flex-shrink:0;" aria-label="Open menu">
+        <span class="mso mso-sm">menu</span>
+      </button>
+      <div style="flex: 1; display: flex; align-items: center; gap: 12px;">
+        <div style="position: relative; max-width: 320px; width: 100%;">
+          <span class="mso mso-sm" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--t3);">search</span>
+          <input class="input" style="width: 100%; padding-left: 32px; height: 34px; font-size: 12px;" placeholder="Search agents, issues...">
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <div style="display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.1);">
+          <div class="live-dot"></div>
+          <span class="text-mono" style="font-size: 10px; font-weight: 600; color: #22c55e;">LIVE</span>
+        </div>
+        <button onclick="toggleTheme()" class="btn-ghost" style="width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 7px;">
+          <span class="mso mso-sm" id="theme-icon">light_mode</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ═══════ PAGES ═══════ -->
+    <main style="flex: 1; padding: 24px 40px; max-width: 1320px; margin: 0 auto; width: 100%; overflow-y: auto;">
+
+      <!-- ── DASHBOARD ── -->
+      <div id="page-dashboard" class="page active">
+        <!-- Header -->
+        <div class="animate-in" style="display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 24px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+              <h1 style="font-size: 22px; font-weight: 800; letter-spacing: -0.03em;">Command Center</h1>
+              <div style="display: flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 5px; background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.1);">
+                <div class="dot dot-idle" style="width: 6px; height: 6px;"></div>
+                <span class="text-mono" style="font-size: 10px; font-weight: 600; color: #22c55e;">NOMINAL</span>
+              </div>
+            </div>
+            <p style="font-size: 13px; color: var(--t3);">Real-time fleet monitoring and control</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="text-mono" style="font-size: 11px; color: var(--t3);">SYNC: <span style="color: var(--t2);">12:34:56 UTC</span></span>
+          </div>
+        </div>
+
+        <!-- Metric Cards -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px;">
+          <div class="card card-hover animate-in delay-1">
+            <div class="metric-label">Active Agents</div>
+            <div class="metric-value" style="color: #6366f1;">7</div>
+            <div style="display: flex; gap: 12px; margin-top: 12px;">
+              <span class="text-mono" style="font-size: 11px; color: #22c55e;">4 idle</span>
+              <span class="text-mono" style="font-size: 11px; color: #3b82f6;">2 running</span>
+              <span class="text-mono" style="font-size: 11px; color: #ef4444;">1 error</span>
+            </div>
+          </div>
+
+          <div class="card card-hover animate-in delay-2">
+            <div class="metric-label">Budget</div>
+            <div class="metric-value">$847<span style="font-size: 16px; color: var(--t3);">.20</span></div>
+            <div class="budget-track budget-warn" style="margin-top: 12px;"><div class="budget-fill" style="width: 73%;"></div></div>
+            <div class="metric-sub">73% of $1,160.00</div>
+          </div>
+
+          <div class="card card-hover animate-in delay-3">
+            <div class="metric-label">Success Rate</div>
+            <div class="metric-value" style="color: #22c55e;">98.2<span style="font-size: 16px;">%</span></div>
+            <div class="sparkline" style="margin-top: 12px;">
+              <div class="spark-bar" style="height: 60%; background: rgba(34,197,94,0.15);"></div>
+              <div class="spark-bar" style="height: 80%; background: rgba(34,197,94,0.2);"></div>
+              <div class="spark-bar" style="height: 45%; background: rgba(34,197,94,0.15);"></div>
+              <div class="spark-bar" style="height: 90%; background: rgba(34,197,94,0.25);"></div>
+              <div class="spark-bar" style="height: 100%; background: rgba(34,197,94,0.3);"></div>
+              <div class="spark-bar" style="height: 85%; background: rgba(34,197,94,0.25);"></div>
+              <div class="spark-bar" style="height: 95%; background: rgba(34,197,94,0.3);"></div>
+            </div>
+          </div>
+
+          <div class="card card-hover animate-in delay-4">
+            <div class="metric-label">Total Runs</div>
+            <div class="metric-value">342</div>
+            <div class="metric-sub">Last 24h: <span style="color: var(--t2);">28 runs</span></div>
+          </div>
+        </div>
+
+        <!-- Agent Fleet -->
+        <div class="animate-in delay-3" style="margin-bottom: 24px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+            <div class="metric-label" style="margin: 0;">Agent Fleet</div>
+            <button class="btn btn-primary" style="padding: 6px 14px; font-size: 12px;" onclick="openHireModal()">
+              <span class="mso mso-xs">add</span> Hire Agent
+            </button>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+
+            <!-- Agent Cards -->
+            <div class="card card-interactive" onclick="showPage('agent-detail')">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div class="dot dot-idle"></div>
+                  <span style="font-weight: 600; font-size: 14px;">CEO</span>
+                </div>
+                <span class="badge badge-idle">idle</span>
+              </div>
+              <div class="text-mono" style="font-size: 11px; color: var(--t3); margin-bottom: 10px;">claude_local &middot; Strategy</div>
+              <div class="budget-track budget-safe"><div class="budget-fill" style="width: 34%;"></div></div>
+              <div style="display: flex; justify-content: space-between; margin-top: 6px;">
+                <span class="text-mono" style="font-size: 10px; color: var(--t3);">$170 / $500</span>
+                <span class="text-mono" style="font-size: 10px; color: var(--t3);">34%</span>
+              </div>
+            </div>
+
+            <div class="card card-interactive">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div class="dot dot-running"></div>
+                  <span style="font-weight: 600; font-size: 14px;">CTO</span>
+                </div>
+                <span class="badge badge-running">running</span>
+              </div>
+              <div class="text-mono" style="font-size: 11px; color: var(--t3); margin-bottom: 10px;">claude_local &middot; Engineering</div>
+              <div class="budget-track budget-warn"><div class="budget-fill" style="width: 78%;"></div></div>
+              <div style="display: flex; justify-content: space-between; margin-top: 6px;">
+                <span class="text-mono" style="font-size: 10px; color: var(--t3);">$234 / $300</span>
+                <span class="text-mono" style="font-size: 10px; color: var(--t3);">78%</span>
+              </div>
+            </div>
+
+            <div class="card card-interactive">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div class="dot dot-error"></div>
+                  <span style="font-weight: 600; font-size: 14px;">DevOps Lead</span>
+                </div>
+                <span class="badge badge-error">error</span>
+              </div>
+              <div class="text-mono" style="font-size: 11px; color: var(--t3); margin-bottom: 10px;">http &middot; Infrastructure</div>
+              <div class="budget-track budget-crit"><div class="budget-fill" style="width: 95%;"></div></div>
+              <div style="display: flex; justify-content: space-between; margin-top: 6px;">
+                <span class="text-mono" style="font-size: 10px; color: var(--t3);">$190 / $200</span>
+                <span class="text-mono" style="font-size: 10px; color: var(--t3);">95%</span>
+              </div>
+            </div>
+
+            <div class="card card-interactive">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div class="dot dot-running"></div>
+                  <span style="font-weight: 600; font-size: 14px;">Research Agent</span>
+                </div>
+                <span class="badge badge-running">running</span>
+              </div>
+              <div class="text-mono" style="font-size: 11px; color: var(--t3);">beam_native &middot; Analysis</div>
+            </div>
+
+            <div class="card card-interactive">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div class="dot dot-idle"></div>
+                  <span style="font-weight: 600; font-size: 14px;">QA Engineer</span>
+                </div>
+                <span class="badge badge-idle">idle</span>
+              </div>
+              <div class="text-mono" style="font-size: 11px; color: var(--t3);">process &middot; Testing</div>
+            </div>
+
+            <div class="card card-interactive">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div class="dot dot-pending"></div>
+                  <span style="font-weight: 600; font-size: 14px;">Marketing AI</span>
+                </div>
+                <span class="badge badge-pending">pending</span>
+              </div>
+              <div class="text-mono" style="font-size: 11px; color: var(--t3);">http &middot; Awaiting approval</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Runs -->
+        <div class="animate-in delay-5">
+          <div class="metric-label">Recent Heartbeat Runs</div>
+          <div class="card" style="padding: 0; overflow: hidden;">
+            <table class="data-table">
+              <thead><tr><th>Status</th><th>Agent</th><th>Trigger</th><th>Duration</th><th>Cost</th><th>Time</th></tr></thead>
+              <tbody>
+                <tr><td><span class="badge badge-completed"><div class="dot dot-idle" style="width:5px;height:5px;"></div> completed</span></td><td style="font-weight:500;">CTO</td><td class="text-mono" style="font-size:12px;color:var(--t3);">schedule</td><td class="text-mono" style="font-size:12px;">2,340ms</td><td class="text-mono" style="font-size:12px;">$0.12</td><td class="text-mono" style="font-size:12px;color:var(--t3);">2m ago</td></tr>
+                <tr><td><span class="badge badge-completed"><div class="dot dot-idle" style="width:5px;height:5px;"></div> completed</span></td><td style="font-weight:500;">Research Agent</td><td class="text-mono" style="font-size:12px;color:var(--t3);">manual</td><td class="text-mono" style="font-size:12px;">5,120ms</td><td class="text-mono" style="font-size:12px;">$0.28</td><td class="text-mono" style="font-size:12px;color:var(--t3);">5m ago</td></tr>
+                <tr><td><span class="badge badge-failed"><div class="dot dot-error" style="width:5px;height:5px;"></div> failed</span></td><td style="font-weight:500;">DevOps Lead</td><td class="text-mono" style="font-size:12px;color:var(--t3);">schedule</td><td class="text-mono" style="font-size:12px;">890ms</td><td class="text-mono" style="font-size:12px;">$0.04</td><td class="text-mono" style="font-size:12px;color:var(--t3);">12m ago</td></tr>
+                <tr><td><span class="badge badge-completed"><div class="dot dot-idle" style="width:5px;height:5px;"></div> completed</span></td><td style="font-weight:500;">CEO</td><td class="text-mono" style="font-size:12px;color:var(--t3);">manual</td><td class="text-mono" style="font-size:12px;">3,200ms</td><td class="text-mono" style="font-size:12px;">$0.15</td><td class="text-mono" style="font-size:12px;color:var(--t3);">18m ago</td></tr>
+                <tr><td><span class="badge badge-completed"><div class="dot dot-idle" style="width:5px;height:5px;"></div> completed</span></td><td style="font-weight:500;">QA Engineer</td><td class="text-mono" style="font-size:12px;color:var(--t3);">assignment</td><td class="text-mono" style="font-size:12px;">1,890ms</td><td class="text-mono" style="font-size:12px;">$0.09</td><td class="text-mono" style="font-size:12px;color:var(--t3);">25m ago</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── AGENTS PAGE ── -->
+      <div id="page-agents" class="page">
+        <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 20px;">
+          <div>
+            <h1 style="font-size: 22px; font-weight: 800; letter-spacing: -0.03em;">Agents</h1>
+            <p style="font-size: 13px; color: var(--t3); margin-top: 4px;">7 agents in fleet</p>
+          </div>
+          <button class="btn btn-primary" onclick="openHireModal()"><span class="mso mso-xs">add</span> Hire Agent</button>
+        </div>
+
+        <div style="display: flex; gap: 6px; margin-bottom: 18px;">
+          <span class="page-tab active">All</span>
+          <span class="page-tab">Idle</span>
+          <span class="page-tab">Running</span>
+          <span class="page-tab">Error</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div class="card card-interactive" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px;" onclick="showPage('agent-detail')">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div class="dot dot-idle"></div>
+              <div><div style="font-weight: 600; font-size: 14px;">CEO</div><div class="text-mono" style="font-size: 11px; color: var(--t3);">claude_local &middot; Reports to: none (root)</div></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <span class="text-mono" style="font-size: 11px; color: var(--t3);">$170 / $500</span>
+              <span class="badge badge-idle">idle</span>
+              <span class="mso mso-xs" style="color: var(--t3);">chevron_right</span>
+            </div>
+          </div>
+          <div class="card card-interactive" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div class="dot dot-running"></div>
+              <div><div style="font-weight: 600; font-size: 14px;">CTO</div><div class="text-mono" style="font-size: 11px; color: var(--t3);">claude_local &middot; Reports to: CEO</div></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <span class="text-mono" style="font-size: 11px; color: var(--t3);">$234 / $300</span>
+              <span class="badge badge-running">running</span>
+              <span class="mso mso-xs" style="color: var(--t3);">chevron_right</span>
+            </div>
+          </div>
+          <div class="card card-interactive" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div class="dot dot-error"></div>
+              <div><div style="font-weight: 600; font-size: 14px;">DevOps Lead</div><div class="text-mono" style="font-size: 11px; color: var(--t3);">http &middot; Reports to: CTO</div></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <span class="text-mono" style="font-size: 11px; color: var(--t3);">$190 / $200</span>
+              <span class="badge badge-error">error</span>
+              <span class="mso mso-xs" style="color: var(--t3);">chevron_right</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── AGENT DETAIL ── -->
+      <div id="page-agent-detail" class="page">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+          <button class="btn-ghost" style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 7px;" onclick="showPage('agents')">
+            <span class="mso mso-sm">arrow_back</span>
+          </button>
+          <div style="flex: 1;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <h1 style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em;">CEO</h1>
+              <span class="badge badge-idle">idle</span>
+            </div>
+            <div class="text-mono" style="font-size: 11px; color: var(--t3);">claude_local &middot; ID: 0xa3f2b8c1</div>
+          </div>
+          <button class="btn btn-primary"><span class="mso mso-xs">play_arrow</span> Invoke</button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px;">
+          <div class="card">
+            <div class="metric-label">Budget</div>
+            <div class="metric-value">$170<span style="font-size: 16px; color: var(--t3);">.00</span></div>
+            <div class="budget-track budget-safe" style="margin-top: 12px;"><div class="budget-fill" style="width: 34%;"></div></div>
+            <div class="metric-sub">of $500.00 &middot; 34%</div>
+          </div>
+          <div class="card">
+            <div class="metric-label">Total Runs</div>
+            <div class="metric-value">48</div>
+            <div class="metric-sub">Last run: 18m ago</div>
+          </div>
+          <div class="card">
+            <div class="metric-label">Schedule</div>
+            <div class="text-mono" style="font-size: 14px; font-weight: 600; margin-top: 4px;">*/30 * * * *</div>
+            <div class="metric-sub">Every 30 minutes</div>
+          </div>
+        </div>
+
+        <div class="metric-label">Run History</div>
+        <div class="card" style="padding: 0; overflow: hidden;">
+          <table class="data-table">
+            <thead><tr><th>Status</th><th>Trigger</th><th>Duration</th><th>Tokens</th><th>Cost</th><th>Time</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge badge-completed">completed</span></td><td class="text-mono" style="font-size:12px;">manual</td><td class="text-mono" style="font-size:12px;">3,200ms</td><td class="text-mono" style="font-size:12px;">1,240</td><td class="text-mono" style="font-size:12px;">$0.15</td><td class="text-mono" style="font-size:12px;color:var(--t3);">18m ago</td></tr>
+              <tr><td><span class="badge badge-completed">completed</span></td><td class="text-mono" style="font-size:12px;">schedule</td><td class="text-mono" style="font-size:12px;">2,100ms</td><td class="text-mono" style="font-size:12px;">980</td><td class="text-mono" style="font-size:12px;">$0.11</td><td class="text-mono" style="font-size:12px;color:var(--t3);">48m ago</td></tr>
+              <tr><td><span class="badge badge-failed">failed</span></td><td class="text-mono" style="font-size:12px;">schedule</td><td class="text-mono" style="font-size:12px;">450ms</td><td class="text-mono" style="font-size:12px;">0</td><td class="text-mono" style="font-size:12px;">$0.00</td><td class="text-mono" style="font-size:12px;color:var(--t3);">1h ago</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── ORG CHART PAGE ── -->
+      <div id="page-org-chart" class="page">
+        <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 24px;">
+          <div>
+            <h1 style="font-size: 22px; font-weight: 800; letter-spacing: -0.03em;">Org Chart</h1>
+            <p style="font-size: 13px; color: var(--t3); margin-top: 4px;">Agent hierarchy, performance, and workforce management</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-ghost" onclick="openPerformanceReview()"><span class="mso mso-xs">assessment</span> Performance Review</button>
+            <button class="btn btn-primary" onclick="openHireModal()"><span class="mso mso-xs">add</span> Hire Agent</button>
+          </div>
+        </div>
+
+        <!-- Auto-management rules banner -->
+        <div style="padding: 14px 18px; background: var(--accent-s); border: 1px solid rgba(99,102,241,0.15); border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="mso mso-sm" style="color: var(--accent-t);">auto_fix_high</span>
+            <div>
+              <p style="font-size: 13px; font-weight: 600;">CEO Auto-Management is <span style="color: #22c55e;">Active</span></p>
+              <p style="font-size: 11px; color: var(--t3);">CEO can hire, fire, and reassign agents based on performance thresholds</p>
+            </div>
+          </div>
+          <button class="btn btn-ghost" style="font-size: 12px;" onclick="openAutoRules()"><span class="mso mso-xs">tune</span> Configure Rules</button>
+        </div>
+
+        <!-- Org Tree -->
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 0; padding: 20px 0;">
+
+          <!-- CEO (Root) — with management powers -->
+          <div class="card" style="width: 300px; padding: 18px 22px; border: 2px solid rgba(99,102,241,0.3); background: var(--accent-s); cursor: pointer;" onclick="showPage('agent-detail')">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="dot dot-idle"></div>
+                <span style="font-size: 16px; font-weight: 700;">CEO</span>
+                <span class="badge" style="background: rgba(99,102,241,0.08); color: #6366f1; font-size: 8px; padding: 1px 5px;">ROOT</span>
+              </div>
+              <span class="mso mso-xs" style="color: #6366f1;">shield_person</span>
+            </div>
+            <div style="font-size: 12px; color: var(--t3); margin-bottom: 10px;">claude_local &middot; Strategy &middot; <span style="color: #22c55e;">Can hire &amp; fire</span></div>
+            <div style="display: flex; gap: 12px; margin-bottom: 8px;">
+              <div style="flex: 1;"><div style="font-size: 10px; color: var(--t3); margin-bottom: 2px;">Success</div><div style="font-size: 14px; font-weight: 700; color: #22c55e;">98.5%</div></div>
+              <div style="flex: 1;"><div style="font-size: 10px; color: var(--t3); margin-bottom: 2px;">Runs</div><div style="font-size: 14px; font-weight: 700;">48</div></div>
+              <div style="flex: 1;"><div style="font-size: 10px; color: var(--t3); margin-bottom: 2px;">Cost Eff.</div><div style="font-size: 14px; font-weight: 700; color: #22c55e;">A+</div></div>
+            </div>
+            <div class="budget-track budget-safe"><div class="budget-fill" style="width: 34%;"></div></div>
+            <div class="text-mono" style="font-size: 10px; color: var(--t3); margin-top: 4px;">$170 / $500 &middot; 34%</div>
+          </div>
+
+          <div style="width: 2px; height: 32px; background: var(--border);"></div>
+
+          <!-- Level 2 -->
+          <div style="display: flex; gap: 28px; position: relative;">
+            <div style="position: absolute; top: -1px; left: calc(50% - 175px); width: 350px; height: 2px; background: var(--border);"></div>
+
+            <!-- CTO -->
+            <div style="display: flex; flex-direction: column; align-items: center;">
+              <div style="width: 2px; height: 20px; background: var(--border);"></div>
+              <div class="card card-interactive" style="width: 250px; padding: 14px 16px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <div class="dot dot-running"></div>
+                    <span style="font-size: 14px; font-weight: 700;">CTO</span>
+                  </div>
+                  <div style="display: flex; gap: 4px;">
+                    <button class="org-action" title="Reassign" onclick="event.stopPropagation()"><span class="mso mso-xs">swap_horiz</span></button>
+                    <button class="org-action org-action-danger" title="Fire agent" onclick="event.stopPropagation();openFireModal('CTO')"><span class="mso mso-xs">person_remove</span></button>
+                  </div>
+                </div>
+                <div style="font-size: 11px; color: var(--t3); margin-bottom: 8px;">claude_local &middot; Engineering</div>
+                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                  <div style="flex: 1; padding: 6px 8px; background: var(--s2); border-radius: 5px; text-align: center;">
+                    <div style="font-size: 9px; color: var(--t3);">Success</div>
+                    <div style="font-size: 13px; font-weight: 700; color: #22c55e;">96.2%</div>
+                  </div>
+                  <div style="flex: 1; padding: 6px 8px; background: var(--s2); border-radius: 5px; text-align: center;">
+                    <div style="font-size: 9px; color: var(--t3);">Runs</div>
+                    <div style="font-size: 13px; font-weight: 700;">127</div>
+                  </div>
+                  <div style="flex: 1; padding: 6px 8px; background: var(--s2); border-radius: 5px; text-align: center;">
+                    <div style="font-size: 9px; color: var(--t3);">Grade</div>
+                    <div style="font-size: 13px; font-weight: 700; color: #22c55e;">A</div>
+                  </div>
+                </div>
+                <div class="budget-track budget-warn"><div class="budget-fill" style="width: 78%;"></div></div>
+                <div class="text-mono" style="font-size: 10px; color: var(--t3); margin-top: 4px;">$234 / $300 &middot; 78%</div>
+              </div>
+
+              <div style="width: 2px; height: 24px; background: var(--border);"></div>
+              <div style="display: flex; gap: 14px; position: relative;">
+                <div style="position: absolute; top: -1px; left: calc(50% - 105px); width: 210px; height: 2px; background: var(--border);"></div>
+
+                <!-- DevOps Lead — FLAGGED for poor performance -->
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                  <div style="width: 2px; height: 16px; background: var(--border);"></div>
+                  <div class="card" style="width: 190px; padding: 10px 14px; border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.03); cursor: pointer;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                      <div style="display: flex; align-items: center; gap: 6px;">
+                        <div class="dot dot-error"></div>
+                        <span style="font-size: 12px; font-weight: 600;">DevOps Lead</span>
+                      </div>
+                      <button class="org-action org-action-danger" title="Fire agent" onclick="event.stopPropagation();openFireModal('DevOps Lead')"><span class="mso mso-xs">person_remove</span></button>
+                    </div>
+                    <div style="font-size: 10px; color: var(--t3); margin-bottom: 6px;">http &middot; Infrastructure</div>
+                    <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                      <div style="flex: 1; padding: 4px 6px; background: rgba(239,68,68,0.06); border-radius: 4px; text-align: center;">
+                        <div style="font-size: 8px; color: var(--t3);">Success</div>
+                        <div style="font-size: 12px; font-weight: 700; color: #ef4444;">62.1%</div>
+                      </div>
+                      <div style="flex: 1; padding: 4px 6px; background: var(--s2); border-radius: 4px; text-align: center;">
+                        <div style="font-size: 8px; color: var(--t3);">Grade</div>
+                        <div style="font-size: 12px; font-weight: 700; color: #ef4444;">D</div>
+                      </div>
+                    </div>
+                    <!-- Performance warning -->
+                    <div style="padding: 5px 8px; background: rgba(239,68,68,0.08); border-radius: 4px; border: 1px solid rgba(239,68,68,0.15); display: flex; align-items: center; gap: 5px;">
+                      <span class="mso" style="font-size: 12px; color: #ef4444;">warning</span>
+                      <span style="font-size: 9px; font-weight: 600; color: #ef4444;">CEO flagged for termination</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- QA Engineer -->
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                  <div style="width: 2px; height: 16px; background: var(--border);"></div>
+                  <div class="card card-interactive" style="width: 190px; padding: 10px 14px; text-align: center;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 4px;">
+                      <div class="dot dot-idle"></div>
+                      <span style="font-size: 12px; font-weight: 600;">QA Engineer</span>
+                    </div>
+                    <div style="font-size: 10px; color: var(--t3); margin-bottom: 6px;">process</div>
+                    <div style="display: flex; gap: 6px;">
+                      <div style="flex: 1; padding: 4px 6px; background: var(--s2); border-radius: 4px; text-align: center;">
+                        <div style="font-size: 8px; color: var(--t3);">Success</div>
+                        <div style="font-size: 12px; font-weight: 700; color: #22c55e;">99.1%</div>
+                      </div>
+                      <div style="flex: 1; padding: 4px 6px; background: var(--s2); border-radius: 4px; text-align: center;">
+                        <div style="font-size: 8px; color: var(--t3);">Grade</div>
+                        <div style="font-size: 12px; font-weight: 700; color: #22c55e;">A+</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Research Agent -->
+            <div style="display: flex; flex-direction: column; align-items: center;">
+              <div style="width: 2px; height: 20px; background: var(--border);"></div>
+              <div class="card card-interactive" style="width: 250px; padding: 14px 16px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <div class="dot dot-running"></div>
+                    <span style="font-size: 14px; font-weight: 700;">Research Agent</span>
+                  </div>
+                  <div style="display: flex; gap: 4px;">
+                    <button class="org-action" title="Reassign" onclick="event.stopPropagation()"><span class="mso mso-xs">swap_horiz</span></button>
+                    <button class="org-action org-action-danger" title="Fire agent" onclick="event.stopPropagation();openFireModal('Research Agent')"><span class="mso mso-xs">person_remove</span></button>
+                  </div>
+                </div>
+                <div style="font-size: 11px; color: var(--t3); margin-bottom: 8px;">beam_native &middot; Analysis</div>
+                <div style="display: flex; gap: 8px;">
+                  <div style="flex: 1; padding: 6px 8px; background: var(--s2); border-radius: 5px; text-align: center;">
+                    <div style="font-size: 9px; color: var(--t3);">Success</div>
+                    <div style="font-size: 13px; font-weight: 700; color: #22c55e;">100%</div>
+                  </div>
+                  <div style="flex: 1; padding: 6px 8px; background: var(--s2); border-radius: 5px; text-align: center;">
+                    <div style="font-size: 9px; color: var(--t3);">Runs</div>
+                    <div style="font-size: 13px; font-weight: 700;">34</div>
+                  </div>
+                  <div style="flex: 1; padding: 6px 8px; background: var(--s2); border-radius: 5px; text-align: center;">
+                    <div style="font-size: 9px; color: var(--t3);">Grade</div>
+                    <div style="font-size: 13px; font-weight: 700; color: #22c55e;">A+</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Legend + Performance Grades -->
+          <div style="margin-top: 40px; display: flex; gap: 32px;">
+            <div style="display: flex; gap: 16px; padding: 12px 18px; background: var(--s1); border: 1px solid var(--border); border-radius: 8px;">
+              <div style="display: flex; align-items: center; gap: 6px;"><div class="dot dot-idle"></div><span style="font-size: 11px; color: var(--t3);">Idle</span></div>
+              <div style="display: flex; align-items: center; gap: 6px;"><div class="dot dot-running"></div><span style="font-size: 11px; color: var(--t3);">Running</span></div>
+              <div style="display: flex; align-items: center; gap: 6px;"><div class="dot dot-error"></div><span style="font-size: 11px; color: var(--t3);">Error</span></div>
+              <div style="display: flex; align-items: center; gap: 6px;"><div class="dot dot-pending"></div><span style="font-size: 11px; color: var(--t3);">Pending</span></div>
+            </div>
+            <div style="display: flex; gap: 12px; padding: 12px 18px; background: var(--s1); border: 1px solid var(--border); border-radius: 8px;">
+              <span style="font-size: 10px; font-weight: 700; color: var(--t3); align-self: center;">GRADES:</span>
+              <span style="font-size: 11px; color: #22c55e; font-weight: 600;">A+ &ge;98%</span>
+              <span style="font-size: 11px; color: #22c55e; font-weight: 600;">A &ge;95%</span>
+              <span style="font-size: 11px; color: #3b82f6; font-weight: 600;">B &ge;85%</span>
+              <span style="font-size: 11px; color: #f59e0b; font-weight: 600;">C &ge;70%</span>
+              <span style="font-size: 11px; color: #ef4444; font-weight: 600;">D &lt;70%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════ FIRE AGENT MODAL ═══════ -->
+      <div id="fire-modal" style="display:none; position:fixed; inset:0; z-index:100;">
+        <div onclick="closeFireModal()" style="position:absolute; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px);"></div>
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:100%; max-width:480px; background:var(--s1); border:1px solid rgba(239,68,68,0.2); border-radius:14px; box-shadow: 0 24px 48px -12px rgba(0,0,0,0.35); overflow:hidden;" class="animate-in">
+          <!-- Red header -->
+          <div style="padding: 20px 24px; background: rgba(239,68,68,0.04); border-bottom: 1px solid rgba(239,68,68,0.1);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 36px; height: 36px; border-radius: 9px; background: rgba(239,68,68,0.1); display: flex; align-items: center; justify-content: center;">
+                <span class="mso mso-fill" style="font-size: 18px; color: #ef4444;">person_remove</span>
+              </div>
+              <div>
+                <h2 style="font-size: 16px; font-weight: 800; letter-spacing: -0.02em;">Terminate Agent</h2>
+                <p style="font-size: 12px; color: var(--t3);">This action requires board approval</p>
+              </div>
+            </div>
+          </div>
+
+          <div style="padding: 20px 24px;">
+            <!-- Agent being fired -->
+            <div style="padding: 14px 16px; background: var(--s2); border-radius: 8px; margin-bottom: 16px;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <div class="dot dot-error"></div>
+                <span style="font-size: 14px; font-weight: 700;" id="fire-agent-name">DevOps Lead</span>
+              </div>
+              <div style="display: flex; gap: 16px; font-size: 12px; color: var(--t3);">
+                <span>Success: <span style="color: #ef4444; font-weight: 600;">62.1%</span></span>
+                <span>Grade: <span style="color: #ef4444; font-weight: 600;">D</span></span>
+                <span>Errors: <span style="color: #ef4444; font-weight: 600;">14 in last 7d</span></span>
+              </div>
+            </div>
+
+            <!-- Reason -->
+            <div style="margin-bottom: 16px;">
+              <label style="font-size: 12px; font-weight: 600; color: var(--t2); display: block; margin-bottom: 5px;">Termination Reason <span style="color: #ef4444;">*</span></label>
+              <select class="input" style="width: 100%; margin-bottom: 8px;">
+                <option>Poor performance (below threshold)</option>
+                <option>Budget overrun</option>
+                <option>Repeated errors</option>
+                <option>Role no longer needed</option>
+                <option>Restructuring</option>
+                <option>Other</option>
+              </select>
+              <textarea class="input" style="width: 100%; min-height: 60px; resize: vertical;" placeholder="Additional notes (optional)..."></textarea>
+            </div>
+
+            <!-- What happens -->
+            <div style="padding: 12px 14px; background: rgba(239,68,68,0.04); border: 1px solid rgba(239,68,68,0.1); border-radius: 8px; margin-bottom: 20px;">
+              <div style="font-size: 11px; font-weight: 700; color: #ef4444; margin-bottom: 6px;">WHAT HAPPENS:</div>
+              <ul style="font-size: 11px; color: var(--t2); list-style: none; display: flex; flex-direction: column; gap: 4px;">
+                <li style="display: flex; align-items: center; gap: 6px;"><span class="mso" style="font-size: 12px; color: var(--t3);">stop_circle</span> All running heartbeats will be cancelled</li>
+                <li style="display: flex; align-items: center; gap: 6px;"><span class="mso" style="font-size: 12px; color: var(--t3);">swap_horiz</span> Open issues will be reassigned to the manager</li>
+                <li style="display: flex; align-items: center; gap: 6px;"><span class="mso" style="font-size: 12px; color: var(--t3);">lock</span> Agent secrets will be revoked</li>
+                <li style="display: flex; align-items: center; gap: 6px;"><span class="mso" style="font-size: 12px; color: var(--t3);">history</span> Run history and audit trail are preserved</li>
+              </ul>
+            </div>
+
+            <!-- Actions -->
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--t3); cursor: pointer;">
+                <input type="checkbox" style="accent-color: #ef4444;"> Allow CEO to auto-fire in future
+              </label>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-ghost" onclick="closeFireModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="closeFireModal()" style="padding: 9px 18px;">
+                  <span class="mso mso-xs">person_remove</span> Terminate Agent
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════ AUTO-RULES MODAL ═══════ -->
+      <div id="rules-modal" style="display:none; position:fixed; inset:0; z-index:100;">
+        <div onclick="closeAutoRules()" style="position:absolute; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px);"></div>
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:100%; max-width:540px; max-height:90vh; overflow-y:auto; background:var(--s1); border:1px solid var(--border); border-radius:14px; box-shadow: 0 24px 48px -12px rgba(0,0,0,0.35);" class="animate-in">
+          <div style="padding: 24px 28px 0; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 36px; height: 36px; border-radius: 9px; background: var(--accent-s); display: flex; align-items: center; justify-content: center;">
+                <span class="mso mso-fill" style="font-size: 18px; color: #6366f1;">auto_fix_high</span>
+              </div>
+              <div>
+                <h2 style="font-size: 16px; font-weight: 800;">CEO Auto-Management Rules</h2>
+                <p style="font-size: 12px; color: var(--t3);">Define when CEO can autonomously hire and fire</p>
+              </div>
+            </div>
+            <button onclick="closeAutoRules()" style="width:30px; height:30px; border-radius:7px; border:1px solid var(--border); background:none; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--t3);">
+              <span class="mso mso-xs">close</span>
+            </button>
+          </div>
+
+          <div style="padding: 20px 28px 28px;">
+            <!-- Fire rules -->
+            <div class="metric-label" style="margin-bottom: 12px; color: #ef4444;">Termination Thresholds</div>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--s2); border-radius: 8px;">
+                <div style="flex: 1;"><div style="font-size: 13px; font-weight: 600;">Min success rate</div><div style="font-size: 11px; color: var(--t3);">Fire if below this for 7 consecutive days</div></div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <input class="input" type="number" value="70" min="0" max="100" style="width: 70px; text-align: center; font-weight: 600;">
+                  <span style="font-size: 12px; color: var(--t3);">%</span>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--s2); border-radius: 8px;">
+                <div style="flex: 1;"><div style="font-size: 13px; font-weight: 600;">Max consecutive failures</div><div style="font-size: 11px; color: var(--t3);">Fire after N failures in a row</div></div>
+                <input class="input" type="number" value="5" min="1" max="50" style="width: 70px; text-align: center; font-weight: 600;">
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--s2); border-radius: 8px;">
+                <div style="flex: 1;"><div style="font-size: 13px; font-weight: 600;">Budget overrun tolerance</div><div style="font-size: 11px; color: var(--t3);">Fire if budget exceeded by this %</div></div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <input class="input" type="number" value="20" min="0" max="100" style="width: 70px; text-align: center; font-weight: 600;">
+                  <span style="font-size: 12px; color: var(--t3);">%</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="height: 1px; background: var(--border); margin: 0 -28px 20px;"></div>
+
+            <!-- Hire rules -->
+            <div class="metric-label" style="margin-bottom: 12px; color: #22c55e;">Hiring Parameters</div>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--s2); border-radius: 8px;">
+                <div style="flex: 1;"><div style="font-size: 13px; font-weight: 600;">Auto-hire on workload overflow</div><div style="font-size: 11px; color: var(--t3);">Hire when open issues &gt; N per agent</div></div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <input class="input" type="number" value="10" min="1" style="width: 70px; text-align: center; font-weight: 600;">
+                  <div style="width: 36px; height: 20px; border-radius: 10px; background: #22c55e; position: relative; cursor: pointer;">
+                    <div style="width: 16px; height: 16px; border-radius: 50%; background: white; position: absolute; right: 2px; top: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--s2); border-radius: 8px;">
+                <div style="flex: 1;"><div style="font-size: 13px; font-weight: 600;">Auto-replace on termination</div><div style="font-size: 11px; color: var(--t3);">Immediately hire replacement with same role</div></div>
+                <div style="width: 36px; height: 20px; border-radius: 10px; background: var(--s3); position: relative; cursor: pointer;">
+                  <div style="width: 16px; height: 16px; border-radius: 50%; background: white; position: absolute; right: 18px; top: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--s2); border-radius: 8px;">
+                <div style="flex: 1;"><div style="font-size: 13px; font-weight: 600;">Max budget per auto-hire</div><div style="font-size: 11px; color: var(--t3);">Limit for CEO-initiated hires</div></div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 13px; color: var(--t3); font-weight: 600;">$</span>
+                  <input class="input" type="number" value="300" min="0" style="width: 80px; text-align: center; font-weight: 600;">
+                  <span style="font-size: 11px; color: var(--t3);">/mo</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="height: 1px; background: var(--border); margin: 0 -28px 20px;"></div>
+
+            <!-- Safety -->
+            <div class="metric-label" style="margin-bottom: 12px;">Safety Guards</div>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--s2); border-radius: 8px;">
+                <div style="flex: 1;"><div style="font-size: 13px; font-weight: 600;">Require board approval for fires</div><div style="font-size: 11px; color: var(--t3);">CEO proposes, board approves</div></div>
+                <div style="width: 36px; height: 20px; border-radius: 10px; background: #22c55e; position: relative; cursor: pointer;">
+                  <div style="width: 16px; height: 16px; border-radius: 50%; background: white; position: absolute; right: 2px; top: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--s2); border-radius: 8px;">
+                <div style="flex: 1;"><div style="font-size: 13px; font-weight: 600;">Probation period before fire</div><div style="font-size: 11px; color: var(--t3);">Grace period for new agents</div></div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <input class="input" type="number" value="7" min="0" style="width: 70px; text-align: center; font-weight: 600;">
+                  <span style="font-size: 12px; color: var(--t3);">days</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+              <button class="btn btn-ghost" onclick="closeAutoRules()">Cancel</button>
+              <button class="btn btn-primary" onclick="closeAutoRules()">Save Rules</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ISSUES PAGE ── -->
+      <div id="page-issues" class="page">
+        <div style="margin-bottom: 20px;">
+          <h1 style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em;">Issues</h1>
+          <p style="font-size: 13px; color: var(--t3); margin-top: 4px;">12 open issues across 3 projects</p>
+        </div>
+
+        <div style="display: flex; gap: 6px; margin-bottom: 18px;">
+          <span class="page-tab active">All</span>
+          <span class="page-tab">Open</span>
+          <span class="page-tab">In Progress</span>
+          <span class="page-tab">Blocked</span>
+          <span class="page-tab">Done</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div class="card card-hover priority-critical" style="padding: 14px 18px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div><div style="font-weight: 600; font-size: 14px;">Fix authentication middleware crash</div><div class="text-mono" style="font-size: 11px; color: var(--t3); margin-top: 3px;">Assigned: CTO &middot; Project: Auth Service</div></div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="badge" style="background: rgba(239,68,68,0.08); color: #ef4444;">critical</span>
+                <span class="badge badge-open">in progress</span>
+              </div>
+            </div>
+          </div>
+          <div class="card card-hover priority-high" style="padding: 14px 18px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div><div style="font-weight: 600; font-size: 14px;">Implement budget forecasting API</div><div class="text-mono" style="font-size: 11px; color: var(--t3); margin-top: 3px;">Assigned: Research Agent &middot; Project: Analytics</div></div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="badge" style="background: rgba(245,158,11,0.08); color: #f59e0b;">high</span>
+                <span class="badge badge-open">open</span>
+              </div>
+            </div>
+          </div>
+          <div class="card card-hover priority-medium" style="padding: 14px 18px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div><div style="font-weight: 600; font-size: 14px;">Add webhook retry with exponential backoff</div><div class="text-mono" style="font-size: 11px; color: var(--t3); margin-top: 3px;">Assigned: DevOps Lead &middot; Project: Platform</div></div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="badge" style="background: rgba(59,130,246,0.08); color: #3b82f6;">medium</span>
+                <span class="badge badge-error">blocked</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── APPROVALS PAGE ── -->
+      <div id="page-approvals" class="page">
+        <div style="margin-bottom: 20px;">
+          <h1 style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em;">Approvals</h1>
+          <p style="font-size: 13px; color: var(--t3); margin-top: 4px;">3 pending approvals</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div class="card" style="padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(168,85,247,0.08); display: flex; align-items: center; justify-content: center;">
+                <span class="mso mso-sm" style="color: #a855f7;">person_add</span>
+              </div>
+              <div>
+                <div style="font-weight: 600; font-size: 14px;">Hire Approval: Frontend Agent</div>
+                <div class="text-mono" style="font-size: 11px; color: var(--t3); margin-top: 2px;">Requested by CEO &middot; claude_local adapter &middot; $200/mo budget</div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button class="btn btn-success" style="padding: 6px 14px; font-size: 12px;"><span class="mso mso-xs">check</span> Approve</button>
+              <button class="btn btn-danger" style="padding: 6px 14px; font-size: 12px;"><span class="mso mso-xs">close</span> Reject</button>
+            </div>
+          </div>
+
+          <div class="card" style="padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(245,158,11,0.08); display: flex; align-items: center; justify-content: center;">
+                <span class="mso mso-sm" style="color: #f59e0b;">trending_up</span>
+              </div>
+              <div>
+                <div style="font-weight: 600; font-size: 14px;">Budget Increase: CTO</div>
+                <div class="text-mono" style="font-size: 11px; color: var(--t3); margin-top: 2px;">$300/mo &rarr; $500/mo &middot; Requested by CTO</div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button class="btn btn-success" style="padding: 6px 14px; font-size: 12px;"><span class="mso mso-xs">check</span> Approve</button>
+              <button class="btn btn-danger" style="padding: 6px 14px; font-size: 12px;"><span class="mso mso-xs">close</span> Reject</button>
+            </div>
+          </div>
+
+          <div class="card" style="padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; opacity: 0.6;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(34,197,94,0.08); display: flex; align-items: center; justify-content: center;">
+                <span class="mso mso-sm" style="color: #22c55e;">check_circle</span>
+              </div>
+              <div>
+                <div style="font-weight: 600; font-size: 14px;">Strategy: Q2 Research Focus</div>
+                <div class="text-mono" style="font-size: 11px; color: var(--t3); margin-top: 2px;">Approved by Kojo &middot; 2 days ago</div>
+              </div>
+            </div>
+            <span class="badge badge-approved">approved</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── COSTS PAGE ── -->
+      <div id="page-costs" class="page">
+        <div style="margin-bottom: 24px;">
+          <h1 style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em;">Costs</h1>
+          <p style="font-size: 13px; color: var(--t3); margin-top: 4px;">March 2026 budget overview</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px;">
+          <div class="card"><div class="metric-label">Total Budget</div><div class="metric-value">$1,160</div></div>
+          <div class="card"><div class="metric-label">Total Spent</div><div class="metric-value" style="color: #f59e0b;">$847</div></div>
+          <div class="card"><div class="metric-label">Remaining</div><div class="metric-value" style="color: #22c55e;">$313</div></div>
+        </div>
+
+        <div class="metric-label">Cost by Agent</div>
+        <div class="card" style="padding: 0; overflow: hidden;">
+          <table class="data-table">
+            <thead><tr><th>Agent</th><th>Budget</th><th>Used</th><th style="width: 200px;">Utilization</th><th>%</th></tr></thead>
+            <tbody>
+              <tr>
+                <td style="font-weight: 500;">CEO</td><td class="text-mono" style="font-size:12px;">$500</td><td class="text-mono" style="font-size:12px;">$170</td>
+                <td><div class="budget-track budget-safe"><div class="budget-fill" style="width: 34%;"></div></div></td>
+                <td class="text-mono" style="font-size:12px; color: #22c55e;">34%</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 500;">CTO</td><td class="text-mono" style="font-size:12px;">$300</td><td class="text-mono" style="font-size:12px;">$234</td>
+                <td><div class="budget-track budget-warn"><div class="budget-fill" style="width: 78%;"></div></div></td>
+                <td class="text-mono" style="font-size:12px; color: #f59e0b;">78%</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 500;">DevOps Lead</td><td class="text-mono" style="font-size:12px;">$200</td><td class="text-mono" style="font-size:12px;">$190</td>
+                <td><div class="budget-track budget-crit"><div class="budget-fill" style="width: 95%;"></div></div></td>
+                <td class="text-mono" style="font-size:12px; color: #ef4444;">95%</td>
+              </tr>
+              <tr>
+                <td style="font-weight: 500;">Research Agent</td><td class="text-mono" style="font-size:12px;">$160</td><td class="text-mono" style="font-size:12px;">$98</td>
+                <td><div class="budget-track budget-safe"><div class="budget-fill" style="width: 61%;"></div></div></td>
+                <td class="text-mono" style="font-size:12px; color: #22c55e;">61%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── ACTIVITY PAGE ── -->
+      <div id="page-activity" class="page">
+        <div style="margin-bottom: 20px;">
+          <h1 style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em;">Activity</h1>
+          <p style="font-size: 13px; color: var(--t3); margin-top: 4px;">Immutable audit trail &middot; 1,247 events</p>
+        </div>
+        <div class="card" style="padding: 0; overflow: hidden;">
+          <table class="data-table">
+            <thead><tr><th>Action</th><th>Resource</th><th>Actor</th><th>Details</th><th>Time</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge badge-completed">create</span></td><td class="text-mono" style="font-size:12px;">HeartbeatRun</td><td style="font-size:13px;">CTO</td><td class="text-mono" style="font-size:11px;color:var(--t3);">trigger: schedule</td><td class="text-mono" style="font-size:12px;color:var(--t3);">2m ago</td></tr>
+              <tr><td><span class="badge badge-running">update</span></td><td class="text-mono" style="font-size:12px;">Agent</td><td style="font-size:13px;">System</td><td class="text-mono" style="font-size:11px;color:var(--t3);">status: idle &rarr; running</td><td class="text-mono" style="font-size:12px;color:var(--t3);">2m ago</td></tr>
+              <tr><td><span class="badge badge-completed">create</span></td><td class="text-mono" style="font-size:12px;">Issue</td><td style="font-size:13px;">Kojo</td><td class="text-mono" style="font-size:11px;color:var(--t3);">Fix auth middleware</td><td class="text-mono" style="font-size:12px;color:var(--t3);">15m ago</td></tr>
+              <tr><td><span class="badge badge-failed">delete</span></td><td class="text-mono" style="font-size:12px;">Secret</td><td style="font-size:13px;">Kojo</td><td class="text-mono" style="font-size:11px;color:var(--t3);">name: old_api_key</td><td class="text-mono" style="font-size:12px;color:var(--t3);">1h ago</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── SECRETS PAGE ── -->
+      <div id="page-secrets" class="page">
+        <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 20px;">
+          <div>
+            <h1 style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em;">Secrets</h1>
+            <p style="font-size: 13px; color: var(--t3); margin-top: 4px;">Agent-scoped encrypted credentials</p>
+          </div>
+          <button class="btn btn-primary"><span class="mso mso-xs">add</span> Add Secret</button>
+        </div>
+        <div class="card" style="padding: 0; overflow: hidden;">
+          <table class="data-table">
+            <thead><tr><th>Name</th><th>Value</th><th>Agent</th><th>Created</th></tr></thead>
+            <tbody>
+              <tr><td class="text-mono" style="font-weight:600;font-size:13px;">ANTHROPIC_API_KEY</td><td><span class="text-mono" style="font-size:12px;color:var(--t3);background:var(--s2);padding:2px 8px;border-radius:4px;">sk-ant-&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</span></td><td style="font-size:13px;">CEO</td><td class="text-mono" style="font-size:12px;color:var(--t3);">5d ago</td></tr>
+              <tr><td class="text-mono" style="font-weight:600;font-size:13px;">GITHUB_TOKEN</td><td><span class="text-mono" style="font-size:12px;color:var(--t3);background:var(--s2);padding:2px 8px;border-radius:4px;">ghp_&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</span></td><td style="font-size:13px;">CTO</td><td class="text-mono" style="font-size:12px;color:var(--t3);">3d ago</td></tr>
+              <tr><td class="text-mono" style="font-weight:600;font-size:13px;">WEBHOOK_SECRET</td><td><span class="text-mono" style="font-size:12px;color:var(--t3);background:var(--s2);padding:2px 8px;border-radius:4px;">whsec_&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</span></td><td style="font-size:13px;">DevOps Lead</td><td class="text-mono" style="font-size:12px;color:var(--t3);">1d ago</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── SETTINGS PAGE ── -->
+      <div id="page-settings" class="page">
+        <div style="margin-bottom: 24px;">
+          <h1 style="font-size: 22px; font-weight: 800; letter-spacing: -0.03em;">Settings</h1>
+          <p style="font-size: 13px; color: var(--t3); margin-top: 4px;">Company configuration, LLM providers, and system preferences</p>
+        </div>
+
+        <!-- Settings Navigation Tabs -->
+        <div style="display: flex; gap: 6px; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+          <span class="page-tab active" onclick="showSettingsTab(this, 'settings-company')">Company</span>
+          <span class="page-tab" onclick="showSettingsTab(this, 'settings-llm')">LLM Providers</span>
+          <span class="page-tab" onclick="showSettingsTab(this, 'settings-defaults')">Model Defaults</span>
+          <span class="page-tab" onclick="showSettingsTab(this, 'settings-team')">Team</span>
+          <span class="page-tab" onclick="showSettingsTab(this, 'settings-danger')">Danger Zone</span>
+        </div>
+
+        <div style="max-width: 760px;">
+
+          <!-- ── TAB: Company ── -->
+          <div id="settings-company" class="settings-tab active">
+            <div class="card" style="margin-bottom: 16px;">
+              <div class="metric-label">Organization</div>
+              <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                  <div>
+                    <label style="font-size: 12px; font-weight: 600; color: var(--t2); display: block; margin-bottom: 5px;">Company Name</label>
+                    <input class="input" value="AgentSOS Demo" style="width: 100%;">
+                  </div>
+                  <div>
+                    <label style="font-size: 12px; font-weight: 600; color: var(--t2); display: block; margin-bottom: 5px;">Slug</label>
+                    <input class="input" value="agentsos-demo" style="width: 100%; color: var(--t3);" readonly>
+                  </div>
+                </div>
+                <div>
+                  <label style="font-size: 12px; font-weight: 600; color: var(--t2); display: block; margin-bottom: 5px;">Billing Email</label>
+                  <input class="input" value="kojo@agentsos.io" style="width: 100%;">
+                </div>
+                <div>
+                  <label style="font-size: 12px; font-weight: 600; color: var(--t2); display: block; margin-bottom: 5px;">Global Monthly Budget Cap</label>
+                  <div style="position: relative;">
+                    <span class="text-mono" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 13px; font-weight: 600; color: var(--t3);">$</span>
+                    <input class="input" type="number" value="5000" style="width: 100%; padding-left: 26px;">
+                  </div>
+                  <p style="font-size: 10px; color: var(--t3); margin-top: 4px;">All agent budgets combined cannot exceed this cap</p>
+                </div>
+              </div>
+              <div style="margin-top: 18px; display: flex; gap: 8px;">
+                <button class="btn btn-primary">Save Changes</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="metric-label">Auth Mode</div>
+              <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+                <label class="adapter-option selected" onclick="selectAuthMode(this)" style="display: flex; align-items: center; gap: 12px;">
+                  <input type="radio" name="auth_mode" value="authenticated_public" checked style="display: none;">
+                  <span class="mso mso-sm" style="color: #6366f1;">public</span>
+                  <div style="flex: 1;"><div style="font-size: 13px; font-weight: 600;">Authenticated Public</div><div style="font-size: 11px; color: var(--t3);">Anyone can access with login credentials. Best for cloud deployments.</div></div>
+                </label>
+                <label class="adapter-option" onclick="selectAuthMode(this)" style="display: flex; align-items: center; gap: 12px;">
+                  <input type="radio" name="auth_mode" value="authenticated_private" style="display: none;">
+                  <span class="mso mso-sm" style="color: #f59e0b;">vpn_lock</span>
+                  <div style="flex: 1;"><div style="font-size: 13px; font-weight: 600;">Authenticated Private</div><div style="font-size: 11px; color: var(--t3);">Requires VPN/Tailscale. Best for team use behind a network boundary.</div></div>
+                </label>
+                <label class="adapter-option" onclick="selectAuthMode(this)" style="display: flex; align-items: center; gap: 12px;">
+                  <input type="radio" name="auth_mode" value="local_trusted" style="display: none;">
+                  <span class="mso mso-sm" style="color: #22c55e;">home</span>
+                  <div style="flex: 1;"><div style="font-size: 13px; font-weight: 600;">Local Trusted</div><div style="font-size: 11px; color: var(--t3);">No login required. Loopback only. For local dev and testing.</div></div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── TAB: LLM Providers ── -->
+          <div id="settings-llm" class="settings-tab" style="display: none;">
+            <div style="padding: 14px 18px; background: var(--accent-s); border: 1px solid rgba(99,102,241,0.15); border-radius: 8px; margin-bottom: 18px; display: flex; align-items: center; gap: 10px;">
+              <span class="mso mso-sm" style="color: var(--accent-t);">info</span>
+              <p style="font-size: 12px; color: var(--accent-t);">AgentSOS is model-agnostic. Configure as many providers as you need. Each agent chooses its provider at hire time via the adapter config.</p>
+            </div>
+
+            <!-- Provider: Anthropic -->
+            <div class="card" style="margin-bottom: 12px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(168,85,247,0.08); display: flex; align-items: center; justify-content: center;">
+                    <span class="mso mso-sm" style="color: #a855f7;">psychology</span>
+                  </div>
+                  <div>
+                    <div style="font-size: 14px; font-weight: 600;">Anthropic</div>
+                    <div class="text-mono" style="font-size: 10px; color: var(--t3);">Claude 4.6 Opus, Sonnet, Haiku</div>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="badge badge-idle">connected</span>
+                  <div style="width: 36px; height: 20px; border-radius: 10px; background: #22c55e; position: relative; cursor: pointer;">
+                    <div style="width: 16px; height: 16px; border-radius: 50%; background: white; position: absolute; right: 2px; top: 2px; transition: all 120ms; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div>
+                  <label style="font-size: 11px; font-weight: 600; color: var(--t3); display: block; margin-bottom: 4px;">API KEY</label>
+                  <div style="display: flex; gap: 8px;">
+                    <input class="input" type="password" value="sk-ant-api03-xxxxxxxxxxxx" style="flex: 1; font-family: 'JetBrains Mono'; font-size: 12px;">
+                    <button class="btn btn-ghost" style="padding: 8px; font-size: 11px;"><span class="mso mso-xs">visibility</span></button>
+                  </div>
+                </div>
+                <div>
+                  <label style="font-size: 11px; font-weight: 600; color: var(--t3); display: block; margin-bottom: 4px;">AVAILABLE MODELS</label>
+                  <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <span class="text-mono" style="font-size: 11px; padding: 3px 8px; border-radius: 5px; background: var(--s2); color: var(--t2);">claude-opus-4-6</span>
+                    <span class="text-mono" style="font-size: 11px; padding: 3px 8px; border-radius: 5px; background: var(--s2); color: var(--t2);">claude-sonnet-4-6</span>
+                    <span class="text-mono" style="font-size: 11px; padding: 3px 8px; border-radius: 5px; background: var(--s2); color: var(--t2);">claude-haiku-4-5</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Provider: OpenAI -->
+            <div class="card" style="margin-bottom: 12px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(34,197,94,0.08); display: flex; align-items: center; justify-content: center;">
+                    <span class="mso mso-sm" style="color: #22c55e;">auto_awesome</span>
+                  </div>
+                  <div>
+                    <div style="font-size: 14px; font-weight: 600;">OpenAI</div>
+                    <div class="text-mono" style="font-size: 10px; color: var(--t3);">GPT-4o, GPT-4o-mini, o3, Codex</div>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="badge badge-idle">connected</span>
+                  <div style="width: 36px; height: 20px; border-radius: 10px; background: #22c55e; position: relative; cursor: pointer;">
+                    <div style="width: 16px; height: 16px; border-radius: 50%; background: white; position: absolute; right: 2px; top: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div>
+                  <label style="font-size: 11px; font-weight: 600; color: var(--t3); display: block; margin-bottom: 4px;">API KEY</label>
+                  <div style="display: flex; gap: 8px;">
+                    <input class="input" type="password" value="sk-proj-xxxxxxxxxxxx" style="flex: 1; font-family: 'JetBrains Mono'; font-size: 12px;">
+                    <button class="btn btn-ghost" style="padding: 8px; font-size: 11px;"><span class="mso mso-xs">visibility</span></button>
+                  </div>
+                </div>
+                <div>
+                  <label style="font-size: 11px; font-weight: 600; color: var(--t3); display: block; margin-bottom: 4px;">AVAILABLE MODELS</label>
+                  <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <span class="text-mono" style="font-size: 11px; padding: 3px 8px; border-radius: 5px; background: var(--s2); color: var(--t2);">gpt-4o</span>
+                    <span class="text-mono" style="font-size: 11px; padding: 3px 8px; border-radius: 5px; background: var(--s2); color: var(--t2);">gpt-4o-mini</span>
+                    <span class="text-mono" style="font-size: 11px; padding: 3px 8px; border-radius: 5px; background: var(--s2); color: var(--t2);">o3</span>
+                    <span class="text-mono" style="font-size: 11px; padding: 3px 8px; border-radius: 5px; background: var(--s2); color: var(--t2);">codex-mini</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Provider: Google -->
+            <div class="card" style="margin-bottom: 12px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(59,130,246,0.08); display: flex; align-items: center; justify-content: center;">
+                    <span class="mso mso-sm" style="color: #3b82f6;">diamond</span>
+                  </div>
+                  <div>
+                    <div style="font-size: 14px; font-weight: 600;">Google</div>
+                    <div class="text-mono" style="font-size: 10px; color: var(--t3);">Gemini 2.5 Pro, Flash, Nano</div>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="badge badge-queued">not configured</span>
+                  <div onclick="this.querySelector('div').style.right=this.querySelector('div').style.right==='2px'?'18px':'2px';this.style.background=this.querySelector('div').style.right==='2px'?'#22c55e':'var(--s3)'" style="width: 36px; height: 20px; border-radius: 10px; background: var(--s3); position: relative; cursor: pointer;">
+                    <div style="width: 16px; height: 16px; border-radius: 50%; background: white; position: absolute; right: 18px; top: 2px; transition: all 120ms; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 11px; font-weight: 600; color: var(--t3); display: block; margin-bottom: 4px;">API KEY</label>
+                <div style="display: flex; gap: 8px;">
+                  <input class="input" style="flex: 1; font-family: 'JetBrains Mono'; font-size: 12px;" placeholder="Enter Google AI API key...">
+                  <button class="btn btn-ghost" style="padding: 8px; font-size: 11px;"><span class="mso mso-xs">visibility</span></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Provider: Ollama (Self-hosted) -->
+            <div class="card" style="margin-bottom: 12px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(245,158,11,0.08); display: flex; align-items: center; justify-content: center;">
+                    <span class="mso mso-sm" style="color: #f59e0b;">dns</span>
+                  </div>
+                  <div>
+                    <div style="font-size: 14px; font-weight: 600;">Ollama <span style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: rgba(245,158,11,0.08); color: #f59e0b; font-weight: 700; vertical-align: middle;">SELF-HOSTED</span></div>
+                    <div class="text-mono" style="font-size: 10px; color: var(--t3);">Llama 3.3, Mistral, Qwen, DeepSeek</div>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="badge badge-queued">not configured</span>
+                  <div style="width: 36px; height: 20px; border-radius: 10px; background: var(--s3); position: relative; cursor: pointer;">
+                    <div style="width: 16px; height: 16px; border-radius: 50%; background: white; position: absolute; right: 18px; top: 2px; transition: all 120ms; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
+                  </div>
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                  <label style="font-size: 11px; font-weight: 600; color: var(--t3); display: block; margin-bottom: 4px;">BASE URL</label>
+                  <input class="input" style="width: 100%; font-family: 'JetBrains Mono'; font-size: 12px;" placeholder="http://localhost:11434">
+                </div>
+                <div>
+                  <label style="font-size: 11px; font-weight: 600; color: var(--t3); display: block; margin-bottom: 4px;">DEFAULT MODEL</label>
+                  <input class="input" style="width: 100%; font-family: 'JetBrains Mono'; font-size: 12px;" placeholder="llama3.3:70b">
+                </div>
+              </div>
+            </div>
+
+            <!-- Provider: Custom / OpenAI-compatible -->
+            <div class="card" style="border-style: dashed;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div style="width: 32px; height: 32px; border-radius: 8px; background: var(--s2); display: flex; align-items: center; justify-content: center;">
+                    <span class="mso mso-sm" style="color: var(--t3);">add</span>
+                  </div>
+                  <div>
+                    <div style="font-size: 14px; font-weight: 600;">Add Custom Provider</div>
+                    <div style="font-size: 11px; color: var(--t3);">Any OpenAI-compatible API (Together, Groq, Fireworks, vLLM, etc.)</div>
+                  </div>
+                </div>
+                <button class="btn btn-ghost" style="font-size: 12px;"><span class="mso mso-xs">add</span> Configure</button>
+              </div>
+            </div>
+
+            <div style="margin-top: 18px; display: flex; gap: 8px;">
+              <button class="btn btn-primary">Save All Providers</button>
+              <button class="btn btn-ghost"><span class="mso mso-xs">sync</span> Test Connections</button>
+            </div>
+          </div>
+
+          <!-- ── TAB: Model Defaults ── -->
+          <div id="settings-defaults" class="settings-tab" style="display: none;">
+            <div style="padding: 14px 18px; background: var(--accent-s); border: 1px solid rgba(99,102,241,0.15); border-radius: 8px; margin-bottom: 18px; display: flex; align-items: center; gap: 10px;">
+              <span class="mso mso-sm" style="color: var(--accent-t);">info</span>
+              <p style="font-size: 12px; color: var(--accent-t);">These defaults apply when agents don't specify their own model config. Each agent can override in its adapter settings.</p>
+            </div>
+
+            <div class="card" style="margin-bottom: 12px;">
+              <div class="metric-label">Default Model per Adapter</div>
+              <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 12px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--s2); border-radius: 8px;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="mso mso-sm" style="color: #a855f7;">psychology</span>
+                    <span style="font-size: 13px; font-weight: 600;">Claude Code (CLI)</span>
+                  </div>
+                  <select class="input" style="width: 220px; font-family: 'JetBrains Mono'; font-size: 11px; padding: 6px 10px;">
+                    <option>claude-opus-4-6</option>
+                    <option selected>claude-sonnet-4-6</option>
+                    <option>claude-haiku-4-5</option>
+                  </select>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--s2); border-radius: 8px;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="mso mso-sm" style="color: #22c55e;">code</span>
+                    <span style="font-size: 13px; font-weight: 600;">Codex CLI</span>
+                  </div>
+                  <select class="input" style="width: 220px; font-family: 'JetBrains Mono'; font-size: 11px; padding: 6px 10px;">
+                    <option selected>codex-mini</option>
+                    <option>o3</option>
+                    <option>gpt-4o</option>
+                  </select>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--s2); border-radius: 8px;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="mso mso-sm" style="color: #3b82f6;">auto_awesome</span>
+                    <span style="font-size: 13px; font-weight: 600;">Gemini CLI</span>
+                  </div>
+                  <select class="input" style="width: 220px; font-family: 'JetBrains Mono'; font-size: 11px; padding: 6px 10px;">
+                    <option selected>gemini-2.5-pro</option>
+                    <option>gemini-2.5-flash</option>
+                  </select>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--s2); border-radius: 8px;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="mso mso-sm" style="color: #f59e0b;">webhook</span>
+                    <span style="font-size: 13px; font-weight: 600;">HTTP Webhook</span>
+                  </div>
+                  <span class="text-mono" style="font-size: 11px; color: var(--t3);">N/A — configured per agent</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 12px;">
+              <div class="metric-label">Execution Limits</div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px;">
+                <div>
+                  <label style="font-size: 12px; font-weight: 600; color: var(--t2); display: block; margin-bottom: 5px;">Max Tokens per Run</label>
+                  <input class="input" type="number" value="8192" style="width: 100%; font-family: 'JetBrains Mono';">
+                </div>
+                <div>
+                  <label style="font-size: 12px; font-weight: 600; color: var(--t2); display: block; margin-bottom: 5px;">Temperature</label>
+                  <input class="input" type="number" value="0.7" min="0" max="2" step="0.1" style="width: 100%; font-family: 'JetBrains Mono';">
+                </div>
+                <div>
+                  <label style="font-size: 12px; font-weight: 600; color: var(--t2); display: block; margin-bottom: 5px;">Timeout (seconds)</label>
+                  <input class="input" type="number" value="300" style="width: 100%; font-family: 'JetBrains Mono';">
+                </div>
+                <div>
+                  <label style="font-size: 12px; font-weight: 600; color: var(--t2); display: block; margin-bottom: 5px;">Max Retries (Oban)</label>
+                  <input class="input" type="number" value="3" min="0" max="10" style="width: 100%; font-family: 'JetBrains Mono';">
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="metric-label">Cost Tracking</div>
+              <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--s2); border-radius: 8px;">
+                  <div>
+                    <div style="font-size: 13px; font-weight: 600;">Auto-calculate run cost</div>
+                    <div style="font-size: 11px; color: var(--t3);">Estimate cost from token usage and provider pricing</div>
+                  </div>
+                  <div style="width: 36px; height: 20px; border-radius: 10px; background: #22c55e; position: relative; cursor: pointer;">
+                    <div style="width: 16px; height: 16px; border-radius: 50%; background: white; position: absolute; right: 2px; top: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--s2); border-radius: 8px;">
+                  <div>
+                    <div style="font-size: 13px; font-weight: 600;">Budget exhaustion alert</div>
+                    <div style="font-size: 11px; color: var(--t3);">Notify when agent reaches 90% of monthly budget</div>
+                  </div>
+                  <div style="width: 36px; height: 20px; border-radius: 10px; background: #22c55e; position: relative; cursor: pointer;">
+                    <div style="width: 16px; height: 16px; border-radius: 50%; background: white; position: absolute; right: 2px; top: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top: 18px;"><button class="btn btn-primary">Save Defaults</button></div>
+          </div>
+
+          <!-- ── TAB: Team ── -->
+          <div id="settings-team" class="settings-tab" style="display: none;">
+            <div class="card">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <div class="metric-label" style="margin: 0;">Team Members</div>
+                <button class="btn btn-ghost" style="font-size: 12px;"><span class="mso mso-xs">person_add</span> Invite</button>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--s2); border-radius: 8px;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 28px; height: 28px; border-radius: 7px; background: var(--accent-s); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono'; font-size: 10px; font-weight: 700; color: var(--accent-t);">KK</div>
+                    <div><div style="font-size: 13px; font-weight: 600;">Kojo Kwakye</div><div class="text-mono" style="font-size: 11px; color: var(--t3);">kojo@agentsos.io</div></div>
+                  </div>
+                  <span class="badge" style="background: rgba(99,102,241,0.08); color: #6366f1;">owner</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── TAB: Danger Zone ── -->
+          <div id="settings-danger" class="settings-tab" style="display: none;">
+            <div class="card" style="border-color: rgba(239,68,68,0.2);">
+              <div class="metric-label" style="color: #ef4444;">Danger Zone</div>
+              <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border: 1px solid rgba(239,68,68,0.15); border-radius: 8px;">
+                  <div><div style="font-size: 13px; font-weight: 600;">Reset all agent budgets</div><div style="font-size: 11px; color: var(--t3);">Sets budget_used_cents to 0 for all agents. Useful at month start.</div></div>
+                  <button class="btn btn-danger" style="font-size: 12px;">Reset Budgets</button>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border: 1px solid rgba(239,68,68,0.15); border-radius: 8px;">
+                  <div><div style="font-size: 13px; font-weight: 600;">Terminate all agents</div><div style="font-size: 11px; color: var(--t3);">Immediately stop all running heartbeats and set all agents to terminated.</div></div>
+                  <button class="btn btn-danger" style="font-size: 12px;">Terminate All</button>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border: 1px solid rgba(239,68,68,0.15); border-radius: 8px;">
+                  <div><div style="font-size: 13px; font-weight: 600; color: #ef4444;">Delete company</div><div style="font-size: 11px; color: var(--t3);">Permanently delete this company and all associated data. This cannot be undone.</div></div>
+                  <button class="btn btn-danger" style="font-size: 12px;">Delete Company</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer style="padding: 12px 28px; border-top: 1px solid var(--border);">
+      <span class="text-mono" style="font-size: 10px; color: var(--t3); text-transform: uppercase; letter-spacing: 0.1em;">&copy; 2026 AgentSOS &middot; v0.1.0</span>
+    </footer>
+  </div>
+
+  <!-- ═══════ HIRE AGENT MODAL ═══════ -->
+  <div id="hire-modal" style="display:none; position:fixed; inset:0; z-index:100;">
+    <!-- Backdrop -->
+    <div onclick="closeHireModal()" style="position:absolute; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);"></div>
+
+    <!-- Modal -->
+    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:100%; max-width:580px; max-height:90vh; overflow-y:auto; background:var(--s1); border:1px solid var(--border); border-radius:14px; box-shadow: 0 24px 48px -12px rgba(0,0,0,0.35);" class="animate-in">
+
+      <!-- Header -->
+      <div style="padding:24px 28px 0; display:flex; align-items:center; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:36px; height:36px; border-radius:9px; background:linear-gradient(135deg, #6366f1, #4f46e5); display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 12px rgba(99,102,241,0.3);">
+            <span class="mso mso-fill" style="font-size:18px; color:#fff;">person_add</span>
+          </div>
+          <div>
+            <h2 class="text-mono" style="font-size:16px; font-weight:800; letter-spacing:-0.02em;">Hire New Agent</h2>
+            <p style="font-size:12px; color:var(--t3); margin-top:1px;">Add an AI agent to your fleet</p>
+          </div>
+        </div>
+        <button onclick="closeHireModal()" style="width:30px; height:30px; border-radius:7px; border:1px solid var(--border); background:none; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--t3); transition:all 120ms;" onmouseover="this.style.borderColor='var(--border-h)';this.style.color='var(--t1)';this.style.background='var(--s2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--t3)';this.style.background='none'">
+          <span class="mso mso-xs">close</span>
+        </button>
+      </div>
+
+      <!-- Form -->
+      <div style="padding:20px 28px 28px;">
+        <!-- Section: Identity -->
+        <div class="metric-label" style="margin-bottom:12px; margin-top:4px;">Identity</div>
+        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
+          <div>
+            <label style="font-size:12px; font-weight:600; color:var(--t2); display:block; margin-bottom:5px;">Agent Name <span style="color:#ef4444;">*</span></label>
+            <input class="input" style="width:100%;" placeholder="e.g. CTO, Lead Engineer, Research Agent">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:600; color:var(--t2); display:block; margin-bottom:5px;">Role / Description</label>
+            <textarea class="input" style="width:100%; min-height:72px; resize:vertical;" placeholder="What is this agent responsible for?"></textarea>
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:600; color:var(--t2); display:block; margin-bottom:5px;">Reports To</label>
+            <div style="position:relative;">
+              <select class="input" style="width:100%; appearance:none; padding-right:32px; cursor:pointer;">
+                <option value="">None (root / CEO level)</option>
+                <option>CEO</option>
+                <option>CTO</option>
+                <option>DevOps Lead</option>
+              </select>
+              <span class="mso mso-xs" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--t3); pointer-events:none;">unfold_more</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div style="height:1px; background:var(--border); margin:0 -28px 20px;"></div>
+
+        <!-- Section: Execution -->
+        <div class="metric-label" style="margin-bottom:12px;">Execution</div>
+        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
+          <div>
+            <label style="font-size:12px; font-weight:600; color:var(--t2); display:block; margin-bottom:5px;">Adapter Type <span style="color:#ef4444;">*</span></label>
+            <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px;">
+              <label class="adapter-option selected" onclick="selectAdapter(this)">
+                <input type="radio" name="adapter" value="claude_local" checked style="display:none;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="mso mso-sm" style="color:#6366f1;">psychology</span>
+                  <div>
+                    <div style="font-size:13px; font-weight:600;">Claude Code</div>
+                    <div style="font-size:10px; color:var(--t3);">Local CLI via Port</div>
+                  </div>
+                </div>
+              </label>
+              <label class="adapter-option" onclick="selectAdapter(this)">
+                <input type="radio" name="adapter" value="codex_local" style="display:none;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="mso mso-sm" style="color:#22c55e;">code</span>
+                  <div>
+                    <div style="font-size:13px; font-weight:600;">Codex CLI</div>
+                    <div style="font-size:10px; color:var(--t3);">OpenAI Codex process</div>
+                  </div>
+                </div>
+              </label>
+              <label class="adapter-option" onclick="selectAdapter(this)">
+                <input type="radio" name="adapter" value="http" style="display:none;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="mso mso-sm" style="color:#f59e0b;">webhook</span>
+                  <div>
+                    <div style="font-size:13px; font-weight:600;">HTTP Webhook</div>
+                    <div style="font-size:10px; color:var(--t3);">POST to external URL</div>
+                  </div>
+                </div>
+              </label>
+              <label class="adapter-option" onclick="selectAdapter(this)">
+                <input type="radio" name="adapter" value="beam_native" style="display:none;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="mso mso-sm" style="color:#a855f7;">memory</span>
+                  <div>
+                    <div style="font-size:13px; font-weight:600;">Elixir Module</div>
+                    <div style="font-size:10px; color:var(--t3);">BeamNative supervised task</div>
+                  </div>
+                </div>
+              </label>
+              <label class="adapter-option" onclick="selectAdapter(this)">
+                <input type="radio" name="adapter" value="gemini_local" style="display:none;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="mso mso-sm" style="color:#3b82f6;">auto_awesome</span>
+                  <div>
+                    <div style="font-size:13px; font-weight:600;">Gemini CLI</div>
+                    <div style="font-size:10px; color:var(--t3);">Google Gemini process</div>
+                  </div>
+                </div>
+              </label>
+              <label class="adapter-option" onclick="selectAdapter(this)">
+                <input type="radio" name="adapter" value="process" style="display:none;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="mso mso-sm" style="color:var(--t2);">terminal</span>
+                  <div>
+                    <div style="font-size:13px; font-weight:600;">Shell Process</div>
+                    <div style="font-size:10px; color:var(--t3);">Generic command execution</div>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div style="height:1px; background:var(--border); margin:0 -28px 20px;"></div>
+
+        <!-- Section: Budget & Schedule -->
+        <div class="metric-label" style="margin-bottom:12px;">Budget & Schedule</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:24px;">
+          <div>
+            <label style="font-size:12px; font-weight:600; color:var(--t2); display:block; margin-bottom:5px;">Monthly Budget</label>
+            <div style="position:relative;">
+              <span class="text-mono" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:13px; font-weight:600; color:var(--t3);">$</span>
+              <input class="input" type="number" value="500" min="0" step="50" style="width:100%; padding-left:26px;">
+            </div>
+            <p style="font-size:10px; color:var(--t3); margin-top:4px;">Set to 0 for unlimited</p>
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:600; color:var(--t2); display:block; margin-bottom:5px;">Heartbeat Schedule</label>
+            <input class="input" style="width:100%;" placeholder="*/30 * * * *" value="">
+            <p style="font-size:10px; color:var(--t3); margin-top:4px;">Cron expression, blank = manual only</p>
+          </div>
+        </div>
+
+        <!-- Schedule presets -->
+        <div style="display:flex; gap:6px; margin-bottom:24px; flex-wrap:wrap;">
+          <button class="schedule-preset" onclick="setSchedule(this, '*/5 * * * *')">Every 5m</button>
+          <button class="schedule-preset" onclick="setSchedule(this, '*/15 * * * *')">Every 15m</button>
+          <button class="schedule-preset" onclick="setSchedule(this, '*/30 * * * *')">Every 30m</button>
+          <button class="schedule-preset" onclick="setSchedule(this, '0 * * * *')">Hourly</button>
+          <button class="schedule-preset" onclick="setSchedule(this, '0 */6 * * *')">Every 6h</button>
+          <button class="schedule-preset" onclick="setSchedule(this, '0 9 * * 1-5')">Weekdays 9am</button>
+          <button class="schedule-preset active-preset" onclick="setSchedule(this, '')">Manual only</button>
+        </div>
+
+        <!-- Divider -->
+        <div style="height:1px; background:var(--border); margin:0 -28px 20px;"></div>
+
+        <!-- Summary -->
+        <div style="background:var(--s2); border-radius:8px; padding:14px 16px; margin-bottom:20px;">
+          <div class="metric-label" style="margin-bottom:8px; font-size:9px;">Summary</div>
+          <div style="display:flex; gap:20px; font-size:12px;">
+            <div><span style="color:var(--t3);">Adapter:</span> <span class="text-mono" style="font-weight:600;" id="summary-adapter">claude_local</span></div>
+            <div><span style="color:var(--t3);">Budget:</span> <span class="text-mono" style="font-weight:600;">$500/mo</span></div>
+            <div><span style="color:var(--t3);">Schedule:</span> <span class="text-mono" style="font-weight:600;">Manual</span></div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <p style="font-size:11px; color:var(--t3);">Agent will require board approval before activation</p>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-ghost" onclick="closeHireModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="closeHireModal()" style="padding:9px 20px;">
+              <span class="mso mso-xs">rocket_launch</span> Hire Agent
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* ── Adapter selection cards ── */
+    .adapter-option {
+      display: block; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border);
+      cursor: pointer; transition: all 120ms; background: var(--canvas);
+    }
+    .adapter-option:hover { border-color: var(--border-h); background: var(--s2); }
+    .adapter-option.selected { border-color: #6366f1; background: var(--accent-s); box-shadow: 0 0 0 1px rgba(99,102,241,0.2); }
+
+    /* ── Schedule presets ── */
+    .schedule-preset {
+      padding: 4px 10px; border-radius: 5px; font-family: 'Plus Jakarta Sans'; font-size: 11px;
+      font-weight: 600; color: var(--t3); background: none; border: 1px solid var(--border);
+      cursor: pointer; transition: all 120ms;
+    }
+    .schedule-preset:hover { color: var(--t2); border-color: var(--border-h); }
+    .schedule-preset.active-preset { color: var(--accent-t); border-color: #6366f1; background: var(--accent-s); }
+
+    /* ── Modal animation ── */
+    @keyframes modal-in { from { opacity:0; transform:translate(-50%,-50%) scale(0.97); } to { opacity:1; transform:translate(-50%,-50%) scale(1); } }
+    #hire-modal > div:last-of-type:not([onclick]) { animation: modal-in 200ms ease forwards; }
+  </style>
+
+  <script>
+    // ── Hire Modal ──
+    function openHireModal() {
+      document.getElementById('hire-modal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+    function closeHireModal() {
+      document.getElementById('hire-modal').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    function selectAdapter(el) {
+      document.querySelectorAll('.adapter-option').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+      document.getElementById('summary-adapter').textContent = el.querySelector('input').value;
+    }
+    function setSchedule(btn, val) {
+      document.querySelectorAll('.schedule-preset').forEach(b => b.classList.remove('active-preset'));
+      btn.classList.add('active-preset');
+      // Find the schedule input and set its value
+      const inputs = document.querySelectorAll('#hire-modal input[placeholder*="*"]');
+      if (inputs.length) inputs[0].value = val;
+    }
+  </script>
+
+  <style>
+    .settings-tab { display: none; }
+    .settings-tab.active { display: block; }
+  </style>
+
+  <script>
+    // ── Fire Modal ──
+    function openFireModal(name) {
+      document.getElementById('fire-agent-name').textContent = name;
+      document.getElementById('fire-modal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+    function closeFireModal() {
+      document.getElementById('fire-modal').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    // ── Auto Rules Modal ──
+    function openAutoRules() {
+      document.getElementById('rules-modal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+    function closeAutoRules() {
+      document.getElementById('rules-modal').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    // ── Performance Review (opens org chart) ──
+    function openPerformanceReview() { showPage('org-chart'); }
+
+    // ── Mobile Nav ──
+    function openMobileNav() {
+      document.getElementById('sidebar').classList.add('open');
+      document.getElementById('mobile-overlay').classList.add('open');
+    }
+    function closeMobileNav() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('mobile-overlay').classList.remove('open');
+    }
+
+    // ── User Dropdown ──
+    function toggleUserDropdown(e) {
+      e.stopPropagation();
+      document.getElementById('user-dropdown').classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+      const dd = document.getElementById('user-dropdown');
+      if (dd && !e.target.closest('.sidebar-user')) dd.classList.remove('open');
+    });
+
+    // ── Settings Tabs ──
+    function showSettingsTab(btn, tabId) {
+      document.querySelectorAll('#page-settings .page-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.settings-tab').forEach(t => { t.classList.remove('active'); t.style.display = 'none'; });
+      const tab = document.getElementById(tabId);
+      tab.classList.add('active');
+      tab.style.display = 'block';
+    }
+    function selectAuthMode(el) {
+      el.closest('.card').querySelectorAll('.adapter-option').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+
+    // ── Theme Toggle ──
+    function toggleTheme() {
+      document.documentElement.classList.toggle('dark');
+      const isDark = document.documentElement.classList.contains('dark');
+      localStorage.setItem('agentsos-theme', isDark ? 'dark' : 'light');
+      document.getElementById('theme-icon').textContent = isDark ? 'light_mode' : 'dark_mode';
+    }
+    // Init theme
+    const saved = localStorage.getItem('agentsos-theme');
+    if (saved === 'light') { document.documentElement.classList.remove('dark'); document.getElementById('theme-icon').textContent = 'dark_mode'; }
+
+    // ── Page Navigation ──
+    function showPage(id) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + id).classList.add('active');
+      // Update nav
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      const navMap = { dashboard: 0, agents: 1, 'agent-detail': 1, 'org-chart': 2, issues: 3, approvals: 4, costs: 5, activity: 6, secrets: 7, settings: 8 };
+      document.querySelectorAll('.nav-item')[navMap[id]]?.classList.add('active');
+      // Re-trigger animations
+      document.querySelectorAll('#page-' + id + ' .animate-in').forEach(el => {
+        el.style.animation = 'none'; el.offsetHeight; el.style.animation = '';
+      });
+      // Close mobile nav + user dropdown
+      closeMobileNav();
+      document.getElementById('user-dropdown')?.classList.remove('open');
+    }
+  </script>
+</body>
+</html>
