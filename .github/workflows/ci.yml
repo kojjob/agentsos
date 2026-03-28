@@ -40,11 +40,16 @@ jobs:
           otp-version: "27.3"
 
       - name: Build and test
+        env:
+          MIX_ENV: test
         run: |
           mix local.hex --force
           mix local.rebar --force
           mix deps.get
-          mix compile
-          mix ecto.create
-          mix ecto.migrate
-          mix test
+          MIX_ENV=test mix compile
+          echo "Build dir contents:"
+          ls -la _build/ || true
+          ls _build/test/lib/agent_sos/ebin/ | wc -l || echo "no ebin"
+          MIX_ENV=test mix ecto.create
+          MIX_ENV=test mix ecto.migrate
+          MIX_ENV=test mix test
