@@ -517,11 +517,10 @@ select:focus { border-color: #6366f1; outline: none; box-shadow: 0 0 0 3px rgba(
 /* ── Live indicator ── */
 .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: pulse-dot 2s ease-in-out infinite; }
 
-/* ── Material Icons sizing ── */
-.mso { font-family: 'Material Symbols Outlined'; font-size: 20px; font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20; }
-.mso-fill { font-variation-settings: 'FILL' 1; }
-.mso-sm { font-size: 16px; }
-.mso-xs { font-size: 14px; }
+/* ── Icons (Lucide SVG) ── */
+.nav-item i[data-lucide] { width: 18px; height: 18px; flex-shrink: 0; stroke-width: 1.75; }
+.icon-sm { width: 16px; height: 16px; }
+.icon-xs { width: 14px; height: 14px; }
 
 /* ── Typography Utilities ── */
 .text-mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; }

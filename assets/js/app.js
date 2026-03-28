@@ -50,6 +50,14 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
+// Reinitialize Lucide icons after LiveView navigation
+if (typeof lucide !== 'undefined') {
+  document.addEventListener("phx:page-loading-stop", () => lucide.createIcons());
+  // Also handle LiveView updates
+  const observer = new MutationObserver(() => lucide.createIcons());
+  observer.observe(document.body, { childList: true, subtree: true });
+}
+
 // Keyboard shortcuts
 document.addEventListener("keydown", function(e) {
   // Don't trigger in inputs
