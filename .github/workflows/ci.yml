@@ -48,8 +48,5 @@ jobs:
       - name: Compile
         run: mix compile
 
-      - name: Setup database
-        run: mix ecto.create && mix ecto.migrate
-
-      - name: Run tests
-        run: mix test
+      - name: Setup database and run tests
+        run: mix do ecto.create, ecto.migrate, test
